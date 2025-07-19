@@ -1,0 +1,40 @@
+{
+  "name": "hapore-launcher",
+  "version": "1.0.0",
+  "description": "HaporeLauncher - Minecraft No-Premium and Premium Launcher",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.haporelauncher.app",
+    "productName": "HaporeLauncher",
+    "win": {
+      "target": "nsis",
+      "icon": "src/icon.ico"
+    },
+    "files": [
+      "main.js",
+      "src/**/*",
+      "preload.js",
+      "assets/**/*"
+    ],
+    "extraFiles": [
+      {
+        "from": "src/python",
+        "to": "python"
+      }
+    ]
+  },
+  "devDependencies": {
+    "electron": "^37.2.3",
+    "electron-builder": "^24.0.0"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "axios": "^1.10.0",
+    "minecraft-launcher-core": "^3.18.2",
+    "node-fetch": "^2.7.0"
+  }
+}

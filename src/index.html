@@ -1,0 +1,66 @@
+<!--   HaporeLauncher – index.html   -->
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HaporeLauncher</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="animations.css" />
+</head>
+
+<body>
+  <div class="background-container"></div>
+
+  <div class="overlay-images">
+    <img src="../assets/gatitos.webp" alt="Gatito" class="cat-main">
+    <img src="../assets/gatitosworld.webp" alt="Gatito World" class="cat-world">
+  </div>
+
+  <div id="modal-overlay" class="hidden">
+    <div id="modal-box">
+      <h2 id="modal-title"></h2>
+      <div id="modal-content"></div>
+      <div id="modal-buttons"></div>
+    </div>
+  </div>
+
+  <div class="window">
+    <div class="titlebar">
+      <div class="titlebar-title">HaporeLauncher</div>
+      <div class="window-controls">
+        <button id="minimize-btn" class="window-btn minimize">─</button>
+        <button id="close-btn" class="window-btn close">✕</button>
+      </div>
+    </div>
+    <div class="particle-container"></div>
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2 class="sidebar__title">Perfiles</h2>
+        <div class="sidebar-logo">🎮</div>
+      </div>
+      <ul id="profile-list" class="sidebar__list"></ul>
+      <button id="btn-new-profile" class="sidebar__new">＋ Crear perfil</button>
+      <button id="btn-edit-profile" class="sidebar__edit" disabled>✎ Editar perfil</button>
+    </aside>
+    <main class="content">
+      <header class="headline">
+        <h1 id="profile-headline">Selecciona un perfil</h1>
+        <p class="headline-subtitle">¡Prepárate para la aventura!</p>
+      </header>
+      <section id="news" class="news">
+        <div class="news-header">
+          <h3>📰 Noticias</h3>
+        </div>
+        <p class="news__placeholder">
+          ℹ️ Aquí aparecerán las noticias y changelogs de Minecraft…
+        </p>
+      </section>
+      <button id="btn-launch" class="launch" disabled>🚀 ¡JUGAR!</button>
+    </main>
+  </div>
+  <script src="renderer.js"></script>
+</body>
+
+</html>

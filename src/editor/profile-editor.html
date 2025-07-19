@@ -1,0 +1,402 @@
+<!--   HaporeLauncher – profile-editor.html   -->
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+  <title>HaporeLauncher - Editor de perfil</title>
+  <link rel="stylesheet" href="../styles.css" />
+
+  <style>
+    /* ----------   CAJA DEL FORM   ---------- */
+    .editor {
+      max-width: 480px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      display: grid;
+      gap: 1.5rem;
+      position: relative;
+      z-index: 1;
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow);
+    }
+
+    .editor h2 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      position: relative;
+      color: var(--fg);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .form-title::after {
+      content: "";
+      width: 60px;
+      height: 4px;
+      border-radius: 3px;
+      background: var(--launch-gradient);
+      position: absolute;
+      left: 50%;
+      bottom: -12px;
+      transform: translateX(-50%);
+    }
+
+    /* ----------   ESTILO UNIFICADO DE CAMPOS   ---------- */
+    .field-wrapper {
+      display: flex;
+      margin-bottom: 1rem;
+      color: var(--fg);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .field-wrapper:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .field-wrapper .icon-box {
+      background: var(--primary);
+      padding: 0.8rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      color: white;
+      min-width: 50px;
+    }
+
+    .field-wrapper .control-box {
+      flex: 1;
+      background: var(--glass);
+      display: flex;
+      align-items: center;
+      padding: 0.8rem 1rem;
+      border: 1px solid var(--glass-border);
+    }
+
+    .field-wrapper input,
+    .field-wrapper textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font: inherit;
+      color: var(--fg);
+      font-size: 1rem;
+    }
+
+    .field-wrapper textarea {
+      resize: none;
+      min-height: 80px;
+    }
+
+    .field-wrapper select {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font: inherit;
+      color: var(--fg);
+      padding: 0.5rem 0;
+      font-size: 1rem;
+    }
+
+    .field-wrapper select option {
+      background: var(--bg-sidebar);
+      color: var(--fg);
+    }
+
+    ::placeholder {
+      color: var(--fg-secondary);
+      opacity: 0.7;
+    }
+
+    /* ----------   BOTONES   ---------- */
+    .editor__buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .editor__buttons button {
+      flex: 1;
+      padding: 1rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: var(--launch-gradient);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+      letter-spacing: 0.3px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .editor__buttons button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .editor__buttons button:hover::before {
+      left: 100%;
+    }
+
+    .editor__buttons button:hover {
+      background: var(--launch-gradient-hov);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+    }
+
+    .editor__buttons button:active {
+      transform: translateY(0);
+    }
+
+    /* ---------- Tooltip personalizado ---------- */
+    .custom-tooltip-container {
+      position: relative;
+    }
+
+    .custom-tooltip {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--danger);
+      color: white;
+      padding: 0.5rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      z-index: 10;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .custom-tooltip::before {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: 20px;
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-bottom: 5px solid var(--danger);
+    }
+
+    /* ---------- Animaciones ---------- */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 600px) {
+      .editor {
+        margin: 1rem;
+        padding: 1.5rem;
+      }
+
+      .editor__buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('#editor [required]').forEach(el => {
+      el.addEventListener('invalid', e => {
+        e.preventDefault();
+        showTooltip(e.target);
+      });
+      el.addEventListener('input', e => {
+        hideTooltip(e.target);
+      });
+    });
+  });
+
+  function showTooltip(input) {
+    hideTooltip(input);
+    const cont = input.closest('.text_cont') || input.parentNode;
+    cont.classList.add('custom-tooltip-container');
+
+    const msg = input.validationMessage || 'Rellena este campo';
+    const tip = document.createElement('div');
+    tip.className = 'custom-tooltip';
+    tip.innerText = msg;
+
+    cont.appendChild(tip);
+  }
+
+  function hideTooltip(input) {
+    const cont = input.closest('.custom-tooltip-container') || input.parentNode;
+    const old = cont.querySelector('.custom-tooltip');
+    if (old) old.remove();
+  }
+</script>
+
+
+<body>
+  <div class="titlebar">
+    <div class="titlebar-title">HaporeLauncher - Editor</div>
+    <div class="window-controls">
+      <button id="close-btn" class="window-btn close">✕</button>
+    </div>
+  </div>
+
+  <form class="editor" id="editor">
+    <h2 id="editor-title" class="form-title">🎮 Nuevo perfil</h2>
+
+    <!-- Nombre de perfil -->
+    <div class="field-wrapper">
+      <div class="icon-box"><i class="bi bi-info-lg"></i></div>
+      <div class="control-box">
+        <input id="prof-name" placeholder="Nombre del perfil" required autofocus>
+      </div>
+    </div>
+
+    <!-- Username -->
+    <div class="field-wrapper">
+      <div class="icon-box"><i class="bi bi-person-fill"></i></div>
+      <div class="control-box">
+        <input id="username" maxlength="16" placeholder="Username">
+      </div>
+    </div>
+
+    <!-- Versión -->
+    <div class="field-wrapper">
+      <div class="icon-box"><i class="bi bi-hdd-stack-fill"></i></div>
+      <div class="control-box">
+        <select id="version">
+          <option value="" disabled selected>Selecciona una versión</option>
+          <option value="1.7.10">1.7.10</option>
+          <option value="1.8">1.8</option>
+          <option value="1.8.1">1.8.1</option>
+          <option value="1.8.2">1.8.2</option>
+          <option value="1.8.3">1.8.3</option>
+          <option value="1.8.4">1.8.4</option>
+          <option value="1.8.5">1.8.5</option>
+          <option value="1.8.6">1.8.6</option>
+          <option value="1.8.7">1.8.7</option>
+          <option value="1.8.8">1.8.8</option>
+          <option value="1.8.9">1.8.9</option>
+          <option value="1.9">1.9</option>
+          <option value="1.9.1">1.9.1</option>
+          <option value="1.9.2">1.9.2</option>
+          <option value="1.9.3">1.9.3</option>
+          <option value="1.9.4">1.9.4</option>
+          <option value="1.10">1.10</option>
+          <option value="1.10.1">1.10.1</option>
+          <option value="1.10.2">1.10.2</option>
+          <option value="1.11">1.11</option>
+          <option value="1.11.1">1.11.1</option>
+          <option value="1.11.2">1.11.2</option>
+          <option value="1.12">1.12</option>
+          <option value="1.12.1">1.12.1</option>
+          <option value="1.12.2">1.12.2</option>
+          <option value="1.13">1.13</option>
+          <option value="1.13.1">1.13.1</option>
+          <option value="1.13.2">1.13.2</option>
+          <option value="1.14">1.14</option>
+          <option value="1.14.1">1.14.1</option>
+          <option value="1.14.2">1.14.2</option>
+          <option value="1.14.3">1.14.3</option>
+          <option value="1.14.4">1.14.4</option>
+          <option value="1.15">1.15</option>
+          <option value="1.15.1">1.15.1</option>
+          <option value="1.15.2">1.15.2</option>
+          <option value="1.16">1.16</option>
+          <option value="1.16.1">1.16.1</option>
+          <option value="1.16.2">1.16.2</option>
+          <option value="1.16.3">1.16.3</option>
+          <option value="1.16.4">1.16.4</option>
+          <option value="1.16.5">1.16.5</option>
+          <option value="1.17">1.17</option>
+          <option value="1.17.1">1.17.1</option>
+          <option value="1.18">1.18</option>
+          <option value="1.18.1">1.18.1</option>
+          <option value="1.18.2">1.18.2</option>
+          <option value="1.19">1.19</option>
+          <option value="1.19.1">1.19.1</option>
+          <option value="1.19.2">1.19.2</option>
+          <option value="1.19.3">1.19.3</option>
+          <option value="1.19.4">1.19.4</option>
+          <option value="1.20">1.20</option>
+          <option value="1.20.1">1.20.1</option>
+          <option value="1.20.2">1.20.2</option>
+          <option value="1.20.3">1.20.3</option>
+          <option value="1.20.4">1.20.4</option>
+          <option value="1.20.5">1.20.5</option>
+          <option value="1.20.6">1.20.6</option>
+          <option value="1.21">1.21</option>
+          <option value="1.21.1">1.21.1</option>
+          <option value="1.21.2">1.21.2</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Mod-loader -->
+    <div class="field-wrapper">
+      <div class="icon-box"><i class="bi bi-plug-fill"></i></div>
+      <div class="control-box">
+        <select id="modloader">
+          <option value="vanilla">Vanilla</option>
+          <option value="forge">Forge</option>
+          <option value="fabric">Fabric</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- RAM -->
+    <div class="field-wrapper">
+      <div class="icon-box"><i class="bi bi-memory"></i></div>
+      <div class="control-box">
+        <input id="ram" type="number" placeholder="RAM (MiB)">
+      </div>
+    </div>
+
+    <!-- JVM Flags -->
+    <div class="field-wrapper">
+      <div class="icon-box"><i class="bi bi-terminal"></i></div>
+      <div class="control-box">
+        <textarea id="jvm-flags" rows="3" placeholder="JVM flags (espacio-separados)"></textarea>
+      </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="editor__buttons">
+      <button type="button" id="btn-opt">Flags recomendadas</button>
+      <button type="submit">Guardar</button>
+    </div>
+    <div class="background-editor"></div>
+  </form>
+
+  <script src="editor.js"></script>
+</body>
+
+</html>
