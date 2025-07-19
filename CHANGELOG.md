@@ -1,97 +1,139 @@
 # Changelog - HaporeLauncher
 
-## [1.0.0] - 2024-01-XX
+## [2.0.0] - 2024-12-21
 
-### 🎉 Cambios principales
-- **Renombrado completo**: GW Launcher → HaporeLauncher
-- **Nuevo diseño moderno**: Interfaz completamente rediseñada con efectos glassmorphism
-- **Paleta de colores mejorada**: Nuevos colores vibrantes y atractivos
-- **Animaciones fluidas**: Efectos visuales suaves y profesionales
+### 🚀 Arquitectura simplificada - Todo en un proceso
 
-### ✨ Nuevas características
+**Cambio importante**: HaporeLauncher ahora ejecuta toda la lógica directamente en el proceso principal de Electron, eliminando la necesidad de un backend separado.
 
-#### 🎨 Diseño visual
-- **Glassmorphism**: Efectos de cristal y transparencia en toda la interfaz
-- **Gradientes modernos**: Colores vibrantes con transiciones suaves
-- **Iconografía mejorada**: Emojis y elementos visuales intuitivos
-- **Tipografía optimizada**: Mejor legibilidad y jerarquía visual
+#### ✨ Nuevas características
 
-#### 🚀 Experiencia de usuario
-- **Feedback visual mejorado**: Efectos hover y estados activos claros
-- **Navegación intuitiva**: Sidebar rediseñada con mejor organización
-- **Responsive design**: Adaptable a diferentes tamaños de pantalla
-- **Accesibilidad**: Contraste mejorado y elementos claramente identificables
+- **Arquitectura unificada**: Toda la lógica del launcher integrada en `main.js`
+- **Comunicación IPC optimizada**: Intercambio eficiente de datos entre procesos
+- **Obtención automática de versiones**: Las versiones de Minecraft se obtienen automáticamente desde la API de Mojang
+- **Sistema de caché de versiones**: Las versiones se almacenan en caché local para mejorar el rendimiento
+- **Gestión automática de Java**: Descarga automática de Java Runtime Environment según la versión de Minecraft
+- **Proceso simplificado**: Eliminación de la complejidad de múltiples procesos
 
-#### ⚡ Rendimiento
-- **CSS optimizado**: Variables CSS para consistencia y mantenimiento
-- **Animaciones eficientes**: Uso de transform y opacity para mejor rendimiento
-- **Carga rápida**: Estructura optimizada para tiempos de carga mínimos
+#### 🔧 Mejoras técnicas
 
-### 🔧 Mejoras técnicas
+- **Rendimiento mejorado**: Menos overhead de comunicación entre procesos
+- **Código más simple**: Una sola ubicación para toda la lógica del launcher
+- **Debugging más fácil**: Todo el código en un solo lugar
+- **Mejor manejo de errores**: Sistema de errores más robusto y descriptivo
+- **Compatibilidad mejorada**: Mejor soporte multiplataforma
 
-#### Archivos actualizados
-- `package.json`: Nuevo nombre y metadatos del proyecto
-- `main.js`: Referencias actualizadas al nuevo nombre
-- `src/index.html`: Interfaz principal rediseñada
-- `src/styles.css`: Estilos completamente renovados
-- `src/animations.css`: Nuevo archivo con animaciones avanzadas
-- `src/config.js`: Nuevo archivo de configuración centralizada
-- `src/editor/profile-editor.html`: Editor de perfiles mejorado
-- `src/renderer.js`: Rutas actualizadas para el nuevo nombre
-- `README.md`: Documentación completamente actualizada
+#### 📦 Dependencias simplificadas
 
-#### Nuevos archivos
-- `src/animations.css`: Biblioteca de animaciones y efectos visuales
-- `src/config.js`: Sistema de configuración centralizada
-- `CHANGELOG.md`: Este archivo de cambios
+```json
+{
+  "minecraft-launcher-core": "^3.18.2",
+  "axios": "^1.6.0", 
+  "adm-zip": "^0.5.10",
+  "node-fetch": "^2.7.0",
+  "uuid": "^9.0.1"
+}
+```
 
-### 🎮 Características específicas de Minecraft
-- **Gestión de perfiles mejorada**: Interfaz más intuitiva para crear y editar perfiles
-- **Selector de versiones**: Lista completa de versiones de Minecraft
-- **Botón de lanzamiento**: Diseño atractivo con efectos visuales
-- **Sección de noticias**: Área dedicada para novedades de Minecraft
+#### 🗂️ Estructura de archivos simplificada
 
-### 🎯 Mejoras de UX
-- **Título en la barra**: Nombre del launcher visible en la barra de título
-- **Subtítulos informativos**: Textos descriptivos para mejor orientación
-- **Efectos de partículas**: Animaciones de fondo mejoradas
-- **Transiciones suaves**: Movimientos fluidos entre estados
+```
+HaporeLauncher/
+├── main.js                 # Proceso principal con toda la lógica del launcher
+├── package.json            # Configuración del proyecto y dependencias
+├── src/
+│   ├── index.html          # Interfaz principal
+│   ├── styles.css          # Estilos modernos con glassmorphism
+│   ├── animations.css      # Animaciones y efectos visuales
+│   ├── renderer.js         # Lógica del renderer (comunicación IPC)
+│   ├── config.js           # Configuración centralizada
+│   ├── icon.ico            # Icono de la aplicación
+│   └── editor/
+│       ├── profile-editor.html  # Editor de perfiles
+│       └── editor.js            # Lógica del editor
+├── assets/                 # Recursos gráficos
+├── README.md               # Documentación actualizada
+└── CHANGELOG.md            # Este archivo
+```
 
-### 🔄 Compatibilidad
-- **Mantiene funcionalidad**: Todas las características originales preservadas
-- **Rutas actualizadas**: Nuevo directorio `.haporelauncher` para datos
-- **Backend Python**: Sin cambios, mantiene compatibilidad total
+#### 🔄 Funciones IPC integradas
 
-### 📱 Responsive Design
-- **Mobile-friendly**: Adaptable a pantallas pequeñas
-- **Tablet-optimized**: Mejor experiencia en dispositivos medianos
-- **Desktop-enhanced**: Experiencia premium en pantallas grandes
+- **`get-available-versions`**: Obtiene versiones desde Mojang con caché
+- **`get-installed-versions`**: Lista versiones instaladas localmente
+- **`install-version`**: Instala versiones de Minecraft
+- **`launch-minecraft`**: Lanza Minecraft con configuración completa
+- **`download-java`**: Descarga Java automáticamente
+- **`get-required-java-version`**: Determina versión de Java necesaria
+- **`clear-version-cache`**: Limpia caché de versiones
 
-### 🎨 Paleta de colores
-- **Primario**: `#6366f1` (Índigo vibrante)
-- **Secundario**: `#06b6d4` (Cian atractivo)
-- **Acento**: `#7c3aed` (Púrpura moderno)
-- **Fondo**: `#0a0a1a` (Negro profundo)
-- **Texto**: `#f0f4ff` (Blanco suave)
+#### 🎮 Funcionalidades completas
 
-### 🚀 Próximas características
-- [ ] Sistema de temas personalizables
-- [ ] Modo oscuro/claro
-- [ ] Integración con servidores populares
-- [ ] Sistema de actualizaciones automáticas
-- [ ] Panel de estadísticas de juego
+- ✅ **Descarga automática de versiones** desde la API de Mojang
+- ✅ **Instalación de modloaders** (Forge, Fabric, Vanilla)
+- ✅ **Gestión automática de Java** según versión de Minecraft
+- ✅ **Configuración de memoria** y argumentos JVM
+- ✅ **Sistema de perfiles** con persistencia
+- ✅ **Interfaz moderna** con efectos visuales
+- ✅ **Comunicación eficiente** entre procesos
+
+#### 🗑️ Eliminado
+
+- `src/backend/minecraft-backend.js` - Backend separado
+- `src/backend/cli.js` - CLI separado
+- `src/backend/version-manager.js` - Gestor de versiones separado
+- `requirements.txt` - Dependencias de Python
+- Funciones relacionadas con Python en `renderer.js`
+- Verificaciones de Python en el sistema
+- Configuración de `extraFiles` en `package.json`
+
+#### 🔧 Configuración actualizada
+
+- **Obtención automática de versiones**: Habilitada por defecto
+- **Caché de versiones**: 1 hora de duración
+- **Rutas actualizadas**: `.haporelauncher` en lugar de `.gwlauncher`
+- **Arquitectura unificada**: Todo en el proceso principal
+
+#### 📋 Instalación simplificada
+
+```bash
+# Antes (requería Python)
+git clone <repo>
+npm install
+pip install -r requirements.txt
+
+# Ahora (solo Node.js)
+git clone <repo>
+npm install
+```
+
+#### 🎯 Beneficios para el usuario final
+
+- **Instalación más simple**: Solo requiere Node.js
+- **Mejor distribución**: Paquete más pequeño y autónomo
+- **Actualizaciones automáticas**: Las versiones se actualizan automáticamente
+- **Mejor rendimiento**: Inicio más rápido y menor uso de memoria
+- **Menos problemas**: Eliminación de conflictos con versiones de Python
+- **Arquitectura más simple**: Menos puntos de fallo
+
+#### 🔮 Próximas mejoras planificadas
+
+- [ ] Soporte para NeoForge
+- [ ] Descarga automática de modpacks
+- [ ] Sistema de actualizaciones automáticas del launcher
+- [ ] Interfaz para gestión de mods
+- [ ] Soporte para servidores personalizados
+- [ ] Sistema de respaldos de mundos
 - [ ] Integración con Discord Rich Presence
 
 ---
 
-## [0.9.0] - 2024-01-XX (Versión anterior)
+## [1.0.0] - 2024-12-20
 
-### Características originales
-- Lanzador básico de Minecraft No-Premium
-- Soporte para Forge, Fabric y Vanilla
-- Gestión de perfiles simple
-- Interfaz funcional pero básica
+### 🎉 Lanzamiento inicial
 
----
-
-*¡Prepárate para la aventura con HaporeLauncher! 🎮✨* 
+- Interfaz moderna con efectos glassmorphism
+- Soporte para perfiles de Minecraft
+- Backend en Python con minecraft-launcher-lib
+- Soporte para Forge y Fabric
+- Sistema de modales y notificaciones
+- Diseño responsive y animaciones fluidas 

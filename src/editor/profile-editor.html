@@ -1,402 +1,423 @@
-<!--   HaporeLauncher – profile-editor.html   -->
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-  <title>HaporeLauncher - Editor de perfil</title>
-  <link rel="stylesheet" href="../styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Perfil - HaporeLauncher</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <style>
-    /* ----------   CAJA DEL FORM   ---------- */
-    .editor {
-      max-width: 480px;
-      margin: 2rem auto;
-      padding: 2rem;
-      background: var(--bg-card);
-      border-radius: var(--radius);
-      display: grid;
-      gap: 1.5rem;
-      position: relative;
-      z-index: 1;
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      box-shadow: var(--shadow);
-    }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-    .editor h2 {
-      text-align: center;
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-      position: relative;
-      color: var(--fg);
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
+        /* Titlebar */
+        .titlebar {
+            height: 50px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            -webkit-app-region: drag;
+        }
 
-    .form-title::after {
-      content: "";
-      width: 60px;
-      height: 4px;
-      border-radius: 3px;
-      background: var(--launch-gradient);
-      position: absolute;
-      left: 50%;
-      bottom: -12px;
-      transform: translateX(-50%);
-    }
+        .titlebar-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 14px;
+        }
 
-    /* ----------   ESTILO UNIFICADO DE CAMPOS   ---------- */
-    .field-wrapper {
-      display: flex;
-      margin-bottom: 1rem;
-      color: var(--fg);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      transition: all 0.3s ease;
-    }
+        .window-controls {
+            -webkit-app-region: no-drag;
+        }
 
-    .field-wrapper:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    }
+        .close-btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
 
-    .field-wrapper .icon-box {
-      background: var(--primary);
-      padding: 0.8rem 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.1rem;
-      color: white;
-      min-width: 50px;
-    }
+        .close-btn:hover {
+            background: #ef4444;
+            transform: scale(1.05);
+        }
 
-    .field-wrapper .control-box {
-      flex: 1;
-      background: var(--glass);
-      display: flex;
-      align-items: center;
-      padding: 0.8rem 1rem;
-      border: 1px solid var(--glass-border);
-    }
+        /* Main Container */
+        .main-container {
+            height: calc(100vh - 50px);
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 20px;
+            padding-top: 40px;
+            overflow-y: auto;
+        }
 
-    .field-wrapper input,
-    .field-wrapper textarea {
-      width: 100%;
-      background: transparent;
-      border: none;
-      outline: none;
-      font: inherit;
-      color: var(--fg);
-      font-size: 1rem;
-    }
+        /* Editor Form */
+        .editor-form {
+            width: 100%;
+            max-width: 500px;
+            min-height: 600px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 30px;
+            padding-top: 40px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
 
-    .field-wrapper textarea {
-      resize: none;
-      min-height: 80px;
-    }
+        .form-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
 
-    .field-wrapper select {
-      width: 100%;
-      background: transparent;
-      border: none;
-      outline: none;
-      font: inherit;
-      color: var(--fg);
-      padding: 0.5rem 0;
-      font-size: 1rem;
-    }
+        .form-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-    .field-wrapper select option {
-      background: var(--bg-sidebar);
-      color: var(--fg);
-    }
+        .form-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
 
-    ::placeholder {
-      color: var(--fg-secondary);
-      opacity: 0.7;
-    }
+        /* Form Fields */
+        .field-group {
+            margin-bottom: 20px;
+        }
 
-    /* ----------   BOTONES   ---------- */
-    .editor__buttons {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
+        .field-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-    .editor__buttons button {
-      flex: 1;
-      padding: 1rem;
-      border: none;
-      border-radius: var(--radius-sm);
-      background: var(--launch-gradient);
-      color: white;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-size: 1rem;
-      letter-spacing: 0.3px;
-      position: relative;
-      overflow: hidden;
-    }
+        .field-wrapper {
+            position: relative;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
 
-    .editor__buttons button::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-      transition: left 0.5s;
-    }
+        .field-wrapper:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-1px);
+        }
 
-    .editor__buttons button:hover::before {
-      left: 100%;
-    }
+        .field-wrapper:focus-within {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
 
-    .editor__buttons button:hover {
-      background: var(--launch-gradient-hov);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
-    }
+        .field-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 16px;
+            z-index: 2;
+        }
 
-    .editor__buttons button:active {
-      transform: translateY(0);
-    }
+        .field-wrapper:focus-within .field-icon {
+            color: #6366f1;
+        }
 
-    /* ---------- Tooltip personalizado ---------- */
-    .custom-tooltip-container {
-      position: relative;
-    }
+        .field-input,
+        .field-select,
+        .field-textarea {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-family: inherit;
+            font-size: 14px;
+            color: #ffffff;
+            border-radius: 12px;
+        }
 
-    .custom-tooltip {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: var(--danger);
-      color: white;
-      padding: 0.5rem;
-      border-radius: var(--radius-sm);
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
-      z-index: 10;
-      animation: fadeIn 0.3s ease;
-    }
+        .field-input::placeholder,
+        .field-textarea::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
 
-    .custom-tooltip::before {
-      content: '';
-      position: absolute;
-      top: -5px;
-      left: 20px;
-      width: 0;
-      height: 0;
-      border-left: 5px solid transparent;
-      border-right: 5px solid transparent;
-      border-bottom: 5px solid var(--danger);
-    }
+        .field-select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 15px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+        }
 
-    /* ---------- Animaciones ---------- */
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+        .field-textarea {
+            resize: vertical;
+            min-height: 80px;
+            line-height: 1.5;
+        }
 
-    /* ---------- Responsive ---------- */
-    @media (max-width: 600px) {
-      .editor {
-        margin: 1rem;
-        padding: 1.5rem;
-      }
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
 
-      .editor__buttons {
-        flex-direction: column;
-      }
-    }
-  </style>
+        .btn {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Validation States */
+        .field-wrapper.error {
+            border-color: #ef4444;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .field-wrapper.success {
+            border-color: #10b981;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-success {
+            border-left: 4px solid #10b981;
+        }
+
+        .notification-error {
+            border-left: 4px solid #ef4444;
+        }
+
+        .notification-info {
+            border-left: 4px solid #3b82f6;
+        }
+
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .main-container {
+                padding: 15px;
+            }
+            
+            .editor-form {
+                padding: 20px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 
-<script>
-  window.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('#editor [required]').forEach(el => {
-      el.addEventListener('invalid', e => {
-        e.preventDefault();
-        showTooltip(e.target);
-      });
-      el.addEventListener('input', e => {
-        hideTooltip(e.target);
-      });
-    });
-  });
-
-  function showTooltip(input) {
-    hideTooltip(input);
-    const cont = input.closest('.text_cont') || input.parentNode;
-    cont.classList.add('custom-tooltip-container');
-
-    const msg = input.validationMessage || 'Rellena este campo';
-    const tip = document.createElement('div');
-    tip.className = 'custom-tooltip';
-    tip.innerText = msg;
-
-    cont.appendChild(tip);
-  }
-
-  function hideTooltip(input) {
-    const cont = input.closest('.custom-tooltip-container') || input.parentNode;
-    const old = cont.querySelector('.custom-tooltip');
-    if (old) old.remove();
-  }
-</script>
-
-
 <body>
-  <div class="titlebar">
-    <div class="titlebar-title">HaporeLauncher - Editor</div>
-    <div class="window-controls">
-      <button id="close-btn" class="window-btn close">✕</button>
-    </div>
-  </div>
-
-  <form class="editor" id="editor">
-    <h2 id="editor-title" class="form-title">🎮 Nuevo perfil</h2>
-
-    <!-- Nombre de perfil -->
-    <div class="field-wrapper">
-      <div class="icon-box"><i class="bi bi-info-lg"></i></div>
-      <div class="control-box">
-        <input id="prof-name" placeholder="Nombre del perfil" required autofocus>
-      </div>
+    <!-- Titlebar -->
+    <div class="titlebar">
+        <div class="titlebar-title">
+            <i class="bi bi-controller"></i>
+            Editor de Perfil
+        </div>
+        <div class="window-controls">
+            <button id="close-btn" class="close-btn">✕</button>
+        </div>
     </div>
 
-    <!-- Username -->
-    <div class="field-wrapper">
-      <div class="icon-box"><i class="bi bi-person-fill"></i></div>
-      <div class="control-box">
-        <input id="username" maxlength="16" placeholder="Username">
-      </div>
+    <!-- Main Container -->
+    <div class="main-container">
+        <form class="editor-form" id="editor">
+            <!-- Form Header -->
+            <div class="form-header">
+                <h1 id="form-title" class="form-title">✨ Nuevo Perfil</h1>
+                <p class="form-subtitle">Configura tu perfil de Minecraft</p>
+            </div>
+
+            <!-- Profile Name -->
+            <div class="field-group">
+                <label class="field-label">Nombre del Perfil</label>
+                <div class="field-wrapper">
+                    <i class="bi bi-tag-fill field-icon"></i>
+                    <input id="prof-name" class="field-input" placeholder="Ej: Survival 1.21" required autofocus>
+                </div>
+            </div>
+
+            <!-- Username -->
+            <div class="field-group">
+                <label class="field-label">Nombre de Usuario</label>
+                <div class="field-wrapper">
+                    <i class="bi bi-person-fill field-icon"></i>
+                    <input id="username" class="field-input" maxlength="16" placeholder="Tu nombre de usuario">
+                </div>
+            </div>
+
+            <!-- Version -->
+            <div class="field-group">
+                <label class="field-label">Versión de Minecraft</label>
+                <div class="field-wrapper">
+                    <i class="bi bi-hdd-stack-fill field-icon"></i>
+                    <select id="version" class="field-select">
+                        <option value="" disabled selected>Cargando versiones...</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Mod Loader -->
+            <div class="field-group">
+                <label class="field-label">Mod Loader</label>
+                <div class="field-wrapper">
+                    <i class="bi bi-plug-fill field-icon"></i>
+                    <select id="modloader" class="field-select">
+                        <option value="vanilla">Vanilla (Sin mods)</option>
+                        <option value="forge">Forge</option>
+                        <option value="fabric">Fabric</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- RAM -->
+            <div class="field-group">
+                <label class="field-label">Memoria RAM (MB)</label>
+                <div class="field-wrapper">
+                    <i class="bi bi-memory field-icon"></i>
+                    <input id="ram" class="field-input" type="number" placeholder="Ej: 4096" min="1024" max="32768">
+                </div>
+            </div>
+
+            <!-- JVM Flags -->
+            <div class="field-group">
+                <label class="field-label">Argumentos JVM (Opcional)</label>
+                <div class="field-wrapper">
+                    <i class="bi bi-terminal-fill field-icon"></i>
+                    <textarea id="jvm-flags" class="field-textarea" placeholder="Argumentos JVM separados por espacios..."></textarea>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="button-group">
+                <button type="button" id="btn-opt" class="btn btn-secondary">
+                    <i class="bi bi-magic"></i>
+                    Flags Recomendadas
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg"></i>
+                    Guardar Perfil
+                </button>
+            </div>
+        </form>
     </div>
 
-    <!-- Versión -->
-    <div class="field-wrapper">
-      <div class="icon-box"><i class="bi bi-hdd-stack-fill"></i></div>
-      <div class="control-box">
-        <select id="version">
-          <option value="" disabled selected>Selecciona una versión</option>
-          <option value="1.7.10">1.7.10</option>
-          <option value="1.8">1.8</option>
-          <option value="1.8.1">1.8.1</option>
-          <option value="1.8.2">1.8.2</option>
-          <option value="1.8.3">1.8.3</option>
-          <option value="1.8.4">1.8.4</option>
-          <option value="1.8.5">1.8.5</option>
-          <option value="1.8.6">1.8.6</option>
-          <option value="1.8.7">1.8.7</option>
-          <option value="1.8.8">1.8.8</option>
-          <option value="1.8.9">1.8.9</option>
-          <option value="1.9">1.9</option>
-          <option value="1.9.1">1.9.1</option>
-          <option value="1.9.2">1.9.2</option>
-          <option value="1.9.3">1.9.3</option>
-          <option value="1.9.4">1.9.4</option>
-          <option value="1.10">1.10</option>
-          <option value="1.10.1">1.10.1</option>
-          <option value="1.10.2">1.10.2</option>
-          <option value="1.11">1.11</option>
-          <option value="1.11.1">1.11.1</option>
-          <option value="1.11.2">1.11.2</option>
-          <option value="1.12">1.12</option>
-          <option value="1.12.1">1.12.1</option>
-          <option value="1.12.2">1.12.2</option>
-          <option value="1.13">1.13</option>
-          <option value="1.13.1">1.13.1</option>
-          <option value="1.13.2">1.13.2</option>
-          <option value="1.14">1.14</option>
-          <option value="1.14.1">1.14.1</option>
-          <option value="1.14.2">1.14.2</option>
-          <option value="1.14.3">1.14.3</option>
-          <option value="1.14.4">1.14.4</option>
-          <option value="1.15">1.15</option>
-          <option value="1.15.1">1.15.1</option>
-          <option value="1.15.2">1.15.2</option>
-          <option value="1.16">1.16</option>
-          <option value="1.16.1">1.16.1</option>
-          <option value="1.16.2">1.16.2</option>
-          <option value="1.16.3">1.16.3</option>
-          <option value="1.16.4">1.16.4</option>
-          <option value="1.16.5">1.16.5</option>
-          <option value="1.17">1.17</option>
-          <option value="1.17.1">1.17.1</option>
-          <option value="1.18">1.18</option>
-          <option value="1.18.1">1.18.1</option>
-          <option value="1.18.2">1.18.2</option>
-          <option value="1.19">1.19</option>
-          <option value="1.19.1">1.19.1</option>
-          <option value="1.19.2">1.19.2</option>
-          <option value="1.19.3">1.19.3</option>
-          <option value="1.19.4">1.19.4</option>
-          <option value="1.20">1.20</option>
-          <option value="1.20.1">1.20.1</option>
-          <option value="1.20.2">1.20.2</option>
-          <option value="1.20.3">1.20.3</option>
-          <option value="1.20.4">1.20.4</option>
-          <option value="1.20.5">1.20.5</option>
-          <option value="1.20.6">1.20.6</option>
-          <option value="1.21">1.21</option>
-          <option value="1.21.1">1.21.1</option>
-          <option value="1.21.2">1.21.2</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Mod-loader -->
-    <div class="field-wrapper">
-      <div class="icon-box"><i class="bi bi-plug-fill"></i></div>
-      <div class="control-box">
-        <select id="modloader">
-          <option value="vanilla">Vanilla</option>
-          <option value="forge">Forge</option>
-          <option value="fabric">Fabric</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- RAM -->
-    <div class="field-wrapper">
-      <div class="icon-box"><i class="bi bi-memory"></i></div>
-      <div class="control-box">
-        <input id="ram" type="number" placeholder="RAM (MiB)">
-      </div>
-    </div>
-
-    <!-- JVM Flags -->
-    <div class="field-wrapper">
-      <div class="icon-box"><i class="bi bi-terminal"></i></div>
-      <div class="control-box">
-        <textarea id="jvm-flags" rows="3" placeholder="JVM flags (espacio-separados)"></textarea>
-      </div>
-    </div>
-
-    <!-- Botones -->
-    <div class="editor__buttons">
-      <button type="button" id="btn-opt">Flags recomendadas</button>
-      <button type="submit">Guardar</button>
-    </div>
-    <div class="background-editor"></div>
-  </form>
-
-  <script src="editor.js"></script>
+    <script src="editor.js"></script>
 </body>
-
 </html>

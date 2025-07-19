@@ -19,19 +19,204 @@ const recommendedFlags = [
     '-XX:+AlwaysPreTouch'
 ];
 
-document.addEventListener('DOMContentLoaded', () => {
+// Utilidades
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info-circle'}"></i>
+        <span>${message}</span>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animación de entrada
+    setTimeout(() => notification.classList.add('show'), 100);
+    
+    // Auto-remover después de 3 segundos
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+function validateField(field, isValid, message = '') {
+    const wrapper = field.closest('.field-wrapper');
+    
+    // Remover estados previos
+    wrapper.classList.remove('error', 'success');
+    
+    if (isValid) {
+        wrapper.classList.add('success');
+        if (message) showNotification(message, 'success');
+    } else {
+        wrapper.classList.add('error');
+        if (message) showNotification(message, 'error');
+    }
+}
+
+function addFieldValidation() {
+    const fields = document.querySelectorAll('.field-input, .field-select, .field-textarea');
+    
+    fields.forEach(field => {
+        field.addEventListener('blur', () => {
+            validateFieldOnBlur(field);
+        });
+        
+        field.addEventListener('input', () => {
+            // Remover error al escribir
+            const wrapper = field.closest('.field-wrapper');
+            wrapper.classList.remove('error');
+        });
+    });
+}
+
+function validateFieldOnBlur(field) {
+    const value = field.value.trim();
+    const fieldName = field.id;
+    
+    switch (fieldName) {
+        case 'prof-name':
+            if (value.length < 2) {
+                validateField(field, false, 'El nombre del perfil debe tener al menos 2 caracteres');
+                return false;
+            }
+            if (value.length > 20) {
+                validateField(field, false, 'El nombre del perfil no puede exceder 20 caracteres');
+                return false;
+            }
+            validateField(field, true);
+            return true;
+            
+        case 'username':
+            if (value && value.length < 3) {
+                validateField(field, false, 'El nombre de usuario debe tener al menos 3 caracteres');
+                return false;
+            }
+            if (value && value.length > 16) {
+                validateField(field, false, 'El nombre de usuario no puede exceder 16 caracteres');
+                return false;
+            }
+            validateField(field, true);
+            return true;
+            
+        case 'ram':
+            if (value) {
+                const ram = parseInt(value);
+                if (ram < 1024) {
+                    validateField(field, false, 'La RAM mínima es 1024 MB');
+                    return false;
+                }
+                if (ram > 32768) {
+                    validateField(field, false, 'La RAM máxima es 32768 MB');
+                    return false;
+                }
+            }
+            validateField(field, true);
+            return true;
+            
+        default:
+            return true;
+    }
+}
+
+function validateForm() {
+    const fields = document.querySelectorAll('.field-input, .field-select, .field-textarea');
+    let isValid = true;
+    
+    fields.forEach(field => {
+        if (!validateFieldOnBlur(field)) {
+            isValid = false;
+        }
+    });
+    
+    return isValid;
+}
+
+function showLoadingState(button, isLoading) {
+    const originalText = button.innerHTML;
+    
+    if (isLoading) {
+        button.innerHTML = '<i class="bi bi-arrow-clockwise spin"></i> Guardando...';
+        button.disabled = true;
+    } else {
+        button.innerHTML = originalText;
+        button.disabled = false;
+    }
+}
+
+// Inicialización
+document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(location.search);
     const profName = params.get('name');
     const btnClose = document.getElementById('close-btn');
+    const submitBtn = document.querySelector('button[type="submit"]');
+    const formTitle = document.getElementById('form-title');
 
+    // Configurar validaciones
+    addFieldValidation();
+
+    // Cargar versiones automáticamente usando IPC
+    try {
+        console.log('Cargando versiones disponibles...');
+        const versions = await ipcRenderer.invoke('get-available-versions');
+        const versionSelect = document.getElementById('version');
+        
+        if (versionSelect && versions.length > 0) {
+            // Limpiar opciones existentes
+            versionSelect.innerHTML = '';
+            
+            // Agregar opción por defecto
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Seleccionar versión...';
+            versionSelect.appendChild(defaultOption);
+            
+            // Agregar versiones con mejor formato
+            versions.forEach(version => {
+                const option = document.createElement('option');
+                option.value = version;
+                option.textContent = `Minecraft ${version}`;
+                versionSelect.appendChild(option);
+            });
+            
+            console.log(`Cargadas ${versions.length} versiones`);
+            showNotification(`Cargadas ${versions.length} versiones de Minecraft`, 'success');
+        }
+    } catch (error) {
+        console.error('Error cargando versiones:', error);
+        showNotification('Error cargando versiones. Usando lista básica.', 'error');
+        
+        // Usar versiones básicas como fallback
+        const basicVersions = ['1.21.2', '1.20.6', '1.19.4', '1.18.2', '1.17.1', '1.16.5', '1.15.2', '1.14.4', '1.13.2', '1.12.2', '1.11.2', '1.10.2', '1.9.4', '1.8.9', '1.7.10'];
+        const versionSelect = document.getElementById('version');
+        
+        if (versionSelect) {
+            versionSelect.innerHTML = '';
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Seleccionar versión...';
+            versionSelect.appendChild(defaultOption);
+            
+            basicVersions.forEach(version => {
+                const option = document.createElement('option');
+                option.value = version;
+                option.textContent = `Minecraft ${version}`;
+                versionSelect.appendChild(option);
+            });
+        }
+    }
+
+    // Configurar botón de cerrar
     if (btnClose) {
         btnClose.addEventListener('click', () => {
             window.close();
         });
     }
 
+    // Cargar perfil existente si se está editando
     if (profName) {
-        document.getElementById('editor-title').textContent = `Editar perfil: ${profName}`;
+        formTitle.textContent = `✏️ Editar Perfil: ${profName}`;
         document.getElementById('prof-name').value = profName;
         document.getElementById('prof-name').disabled = true;
 
@@ -45,37 +230,173 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('modloader').value = profile.modloader || 'vanilla';
                     document.getElementById('ram').value = profile.ram || '';
                     document.getElementById('jvm-flags').value = (profile.jvmFlags || []).join(' ');
+                    
+                    showNotification('Perfil cargado correctamente', 'success');
                 }
             } catch (e) {
                 console.warn('Error al cargar perfiles:', e);
+                showNotification('Error cargando el perfil', 'error');
             }
         }
     }
 
-    document.getElementById('editor').addEventListener('submit', e => {
+    // Manejar envío del formulario
+    document.getElementById('editor').addEventListener('submit', async e => {
         e.preventDefault();
+        
+        if (!validateForm()) {
+            showNotification('Por favor, corrige los errores en el formulario', 'error');
+            return;
+        }
+        
         const name = document.getElementById('prof-name').value.trim();
-        const profiles = fs.existsSync(profilesFile)
-            ? JSON.parse(fs.readFileSync(profilesFile, 'utf8'))
-            : {};
+        const username = document.getElementById('username').value.trim();
+        const version = document.getElementById('version').value;
+        const modloader = document.getElementById('modloader').value;
+        const ram = document.getElementById('ram').value.trim();
+        const jvmFlags = document.getElementById('jvm-flags').value.trim().split(/\s+/).filter(Boolean);
+        
+        // Validaciones adicionales
+        if (!name) {
+            showNotification('El nombre del perfil es obligatorio', 'error');
+            return;
+        }
+        
+        if (!version) {
+            showNotification('Debes seleccionar una versión de Minecraft', 'error');
+            return;
+        }
+        
+        // Mostrar estado de carga
+        showLoadingState(submitBtn, true);
+        
+        try {
+            // Cargar perfiles existentes
+            const profiles = fs.existsSync(profilesFile)
+                ? JSON.parse(fs.readFileSync(profilesFile, 'utf8'))
+                : {};
 
-        profiles[name] = {
-            username: document.getElementById('username').value.trim(),
-            version: document.getElementById('version').value,
-            modloader: document.getElementById('modloader').value,
-            ram: document.getElementById('ram').value.trim(),
-            jvmFlags: document.getElementById('jvm-flags').value
-                .trim().split(/\s+/).filter(Boolean)
-        };
-        fs.mkdirSync(path.dirname(profilesFile), { recursive: true });
-        fs.writeFileSync(profilesFile, JSON.stringify(profiles, null, 2));
+            // Verificar si el nombre ya existe (solo si es un perfil nuevo)
+            if (!profName && profiles[name]) {
+                showLoadingState(submitBtn, false);
+                showNotification('Ya existe un perfil con ese nombre', 'error');
+                return;
+            }
 
-        ipcRenderer.send('profile-saved', name);
-        window.close();
+            // Guardar perfil
+            profiles[name] = {
+                username,
+                version,
+                modloader,
+                ram: ram || null,
+                jvmFlags
+            };
+            
+            // Crear directorio si no existe
+            fs.mkdirSync(path.dirname(profilesFile), { recursive: true });
+            fs.writeFileSync(profilesFile, JSON.stringify(profiles, null, 2));
+
+            // Simular delay para mejor UX
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            showNotification('Perfil guardado correctamente', 'success');
+            
+            // Notificar al proceso principal
+            ipcRenderer.send('profile-saved', name);
+            
+            // Cerrar ventana después de un breve delay
+            setTimeout(() => {
+                window.close();
+            }, 1000);
+            
+        } catch (error) {
+            console.error('Error guardando perfil:', error);
+            showLoadingState(submitBtn, false);
+            showNotification('Error guardando el perfil', 'error');
+        }
     });
 
-
+    // Configurar botón de flags recomendadas
     document.getElementById('btn-opt').addEventListener('click', () => {
-        document.getElementById('jvm-flags').value = recommendedFlags.join(' ');
+        const jvmFlagsField = document.getElementById('jvm-flags');
+        jvmFlagsField.value = recommendedFlags.join(' ');
+        showNotification('Flags JVM recomendadas aplicadas', 'success');
+        
+        // Efecto visual
+        jvmFlagsField.focus();
+        jvmFlagsField.select();
     });
+
+    // Efectos de hover para mejor feedback
+    const buttons = document.querySelectorAll('.btn');
+    buttons.forEach(btn => {
+        btn.addEventListener('mouseenter', () => {
+            if (!btn.disabled) {
+                btn.style.transform = 'translateY(-2px)';
+            }
+        });
+        
+        btn.addEventListener('mouseleave', () => {
+            btn.style.transform = 'translateY(0)';
+        });
+    });
+
+    // Auto-focus en el primer campo
+    setTimeout(() => {
+        const firstField = document.getElementById('prof-name');
+        if (firstField && !firstField.disabled) {
+            firstField.focus();
+        }
+    }, 100);
 });
+
+// Agregar estilos CSS para las notificaciones
+const style = document.createElement('style');
+style.textContent = `
+    .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        z-index: 1000;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+    
+    .notification.show {
+        transform: translateX(0);
+    }
+    
+    .notification-success {
+        border-left: 4px solid #10b981;
+    }
+    
+    .notification-error {
+        border-left: 4px solid #ef4444;
+    }
+    
+    .notification-info {
+        border-left: 4px solid #3b82f6;
+    }
+    
+    .spin {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(style);

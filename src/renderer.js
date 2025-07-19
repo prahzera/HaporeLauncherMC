@@ -1,127 +1,126 @@
-const { spawn } = require('child_process')
 const { ipcRenderer, shell } = require('electron')
 const path = require('path')
 const os = require('os')
 const fs = require('fs')
 
-const pythonScript = getPythonScriptPath()
 const profilesFile = path.join(os.homedir(), '.haporelauncher', 'ui_profiles.json')
 const versionsDir = path.join(os.homedir(), '.haporelauncher', 'instances')
 
 let active = null
 let profiles = {}
 
+// Funciones para manejar logs
+function showLogs() {
+    const logsSection = $('#logs')
+    logsSection.classList.remove('hidden')
+}
+
+function hideLogs() {
+    const logsSection = $('#logs')
+    logsSection.classList.add('hidden')
+}
+
+function addLogEntry(message, type = 'info', timestamp = null) {
+    const logsContent = $('#logs-content')
+    const placeholder = logsContent.querySelector('.logs__placeholder')
+    
+    // Remover placeholder si existe
+    if (placeholder) {
+        placeholder.remove()
+    }
+    
+    const logTimestamp = timestamp || new Date().toLocaleTimeString()
+    const logEntry = document.createElement('div')
+    logEntry.className = `log-entry ${type}`
+    
+    logEntry.innerHTML = `
+        <span class="log-timestamp">[${logTimestamp}]</span>
+        <span class="log-message">${message}</span>
+    `
+    
+    logsContent.appendChild(logEntry)
+    
+    // Auto-scroll al final
+    logsContent.scrollTop = logsContent.scrollHeight
+}
+
+function addAssetLogEntry(message, timestamp = null) {
+    const assetsContent = $('#assets-content')
+    const placeholder = assetsContent.querySelector('.logs__placeholder')
+    
+    // Remover placeholder si existe
+    if (placeholder) {
+        placeholder.remove()
+    }
+    
+    const logTimestamp = timestamp || new Date().toLocaleTimeString()
+    const logEntry = document.createElement('div')
+    logEntry.className = 'log-entry assets'
+    
+    logEntry.innerHTML = `
+        <span class="log-timestamp">[${logTimestamp}]</span>
+        <span class="log-message">${message}</span>
+    `
+    
+    assetsContent.appendChild(logEntry)
+    
+    // Auto-scroll al final
+    assetsContent.scrollTop = assetsContent.scrollHeight
+}
+
+function updateAssetProgress(current, total, percentage) {
+    const progressFill = $('#assets-progress-fill')
+    const progressText = $('#assets-progress-text')
+    
+    progressFill.style.width = `${percentage}%`
+    progressText.textContent = `${percentage}% (${current}/${total})`
+}
+
+function clearLogs() {
+    const logsContent = $('#logs-content')
+    const assetsContent = $('#assets-content')
+    const progressFill = $('#assets-progress-fill')
+    const progressText = $('#assets-progress-text')
+    
+    logsContent.innerHTML = '<p class="logs__placeholder">ℹ️ Los logs generales aparecerán aquí cuando lances Minecraft…</p>'
+    assetsContent.innerHTML = '<p class="logs__placeholder">ℹ️ El progreso de assets aparecerá aquí…</p>'
+    progressFill.style.width = '0%'
+    progressText.textContent = '0% (0/0)'
+}
+
+// Funciones para manejar pestañas
+function switchTab(tabName) {
+    // Remover clase active de todas las pestañas y contenidos
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'))
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'))
+    
+    // Activar la pestaña seleccionada
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active')
+    document.getElementById(`tab-${tabName}-content`).classList.add('active')
+}
+
 function $(sel) { return document.querySelector(sel) }
 
-function getPythonScriptPath() {
-    const devPath = path.join('src', 'python', 'gwlauncher_backend.py')
-    const prodPath = path.join('python', 'gwlauncher_backend.py')
-
-    if (fs.existsSync(devPath)) {
-        return devPath
-    } else if (fs.existsSync(prodPath)) {
-        return prodPath
-    } else {
-        throw new Error('No se encontró el script Python en ninguna ruta esperada')
+async function ensureNodeBackend() {
+  try {
+    // Verificar que las funciones IPC estén disponibles
+    if (!ipcRenderer) {
+      throw new Error('IPC no disponible');
     }
-}
-
-function execPython(args, inherit = false) {
-    return new Promise((resolve, reject) => {
-        const isWin = process.platform === 'win32'
-
-        const opts = inherit
-            ? { stdio: 'inherit', windowsHide: true }
-            : { stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true }
-
-        if (isWin) {
-            opts.creationFlags = 0x08000000
-        }
-
-        const py = spawn('python3', args, opts)
-
-        py.on('error', reject)
-        py.on('exit', code => {
-            if (code === 0) resolve()
-            else reject(new Error(`python3 salió con código ${code}`))
-        })
-    })
-}
-
-async function ensurePythonAndLibs() {
-  try {
-    await execPython(['--version']);
-  } catch {
-    await showModal({
-      title: 'Python 3 no encontrado',
-      html: `
-        No se encontró <strong>Python 3</strong> en tu sistema.<br>
-        Descárgalo e instálalo desde  
-        <a href="#" id="link-py">apps.microsoft.com</a>
-      `,
-      buttons: [
-        { label: 'Visitar sitio', value: 'visit' },
-        { label: 'Cerrar', value: 'cancel' }
-      ]
-    }).then(choice => choice === 'visit' && shell.openExternal('https://apps.microsoft.com/detail/9nrwmjp3717k?hl=en-US&gl=US'));
-    return false;
-  }
-
-  try {
-    await execPython(['-c', 'import minecraft_launcher_lib; import tkinter']);
+    
     return true;
-  } catch {
-    const platform = os.platform();
-    const pipArgs = platform === 'linux'
-      ? ['-m', 'pip3', 'install', '--user', 'minecraft_launcher_lib']
-      : ['-m', 'pip', 'install', 'minecraft_launcher_lib'];
-
-    try {
-      await execPython(pipArgs, true);
-    } catch {
-      await showModal({
-        title: 'Error al instalar minecraft_launcher_lib',
-        html: `
-          No se pudo instalar <strong>minecraft_launcher_lib</strong>.<br>
-          Ejecuta manualmente:<br>
-          <code>pip install minecraft_launcher_lib</code>
-        `,
-        buttons: [{ label: 'OK', value: null }]
-      });
-      return false;
-    }
-
-    if (platform === 'linux') {
-      try {
-        await execShell('sudo apt-get update');
-        await execShell('sudo apt-get install -y python3-tk');
-      } catch {
-        await showModal({
-          title: 'Error en apt-get',
-          html: `
-            No se pudo instalar <strong>python3-tk</strong>.<br>
-            Instálalo manualmente con:<br>
-            <code>sudo apt-get install python3-tk</code>
-          `,
-          buttons: [{ label: 'OK', value: null }]
-        });
-        return false;
-      }
-    }
-
-    try {
-      await execPython(['-c', 'import minecraft_launcher_lib; import tkinter']);
-      return true;
-    } catch {
-      await showModal({
-        title: 'Error al cargar librerías',
-        html: `
-          No se pudieron cargar las librerías después de la instalación.
-        `,
-        buttons: [{ label: 'OK', value: null }]
-      });
-      return false;
-    }
+  } catch (error) {
+    await showModal({
+      title: 'Error en el backend',
+      html: `
+        No se pudo inicializar el backend.<br>
+        Error: <code>${error.message}</code><br><br>
+        Asegúrate de que todas las dependencias estén instaladas:<br>
+        <code>npm install</code>
+      `,
+      buttons: [{ label: 'OK', value: null }]
+    });
+    return false;
   }
 }
 
@@ -255,30 +254,60 @@ async function launch() {
     const p = profiles[active]
     if (!p) return
 
-    const ok = await ensurePythonAndLibs()
+    const ok = await ensureNodeBackend()
     if (!ok) return
 
-    const args = ['launch', p.version, p.username]
-    if (p.ram) args.push('--ram', p.ram)
-    if (p.modloader && p.modloader !== 'vanilla')
-        args.push('--modloader', p.modloader)
-    for (const f of (p.jvmFlags || []))
-        args.push(`--jvm-arg=${f}`)
-
-    args.push('--optimize')
-
-    const py = spawn(
-        process.platform === 'win32' ? 'pythonw' : 'python3',
-        [pythonScript, ...args],
-        {
-            cwd: process.cwd(),
-            stdio: ['ignore', 'pipe', 'pipe'],
-            windowsHide: true
+    try {
+        // Deshabilitar el botón de lanzar y cambiar el texto
+        const launchBtn = $('#btn-launch')
+        launchBtn.disabled = true
+        launchBtn.textContent = '🚀 Iniciando...'
+        
+        // Mostrar área de logs y cambiar a pestaña general
+        showLogs()
+        switchTab('general')
+        clearLogs()
+        
+        const options = {
+            ram: p.ram ? parseInt(p.ram) : null,
+            loader: p.modloader || 'vanilla',
+            jvmArgs: p.jvmFlags || [],
+            optimize: true
         }
-    )
-    py.on('error', err => console.error('Error al lanzar Python backend:', err))
 
-    ipcRenderer.send('close-launcher')
+        // Lanzar Minecraft usando las funciones IPC del proceso principal
+        const success = await ipcRenderer.invoke('launch-minecraft', p.version, p.username, options)
+        
+        if (!success) {
+            await showModal({
+                title: 'Error al lanzar Minecraft',
+                html: `
+                    No se pudo lanzar Minecraft.<br>
+                    Verifica que la versión esté instalada y que Java esté disponible.
+                `,
+                buttons: [{ label: 'OK', value: null }]
+            })
+        }
+        
+        // Rehabilitar el botón después del lanzamiento
+        launchBtn.disabled = false
+        launchBtn.textContent = '🚀 ¡JUGAR!'
+        
+    } catch (error) {
+        // Rehabilitar el botón en caso de error
+        const launchBtn = $('#btn-launch')
+        launchBtn.disabled = false
+        launchBtn.textContent = '🚀 ¡JUGAR!'
+        
+        await showModal({
+            title: 'Error al lanzar Minecraft',
+            html: `
+                Error: <code>${error.message}</code><br><br>
+                Verifica la configuración del perfil y que todas las dependencias estén instaladas.
+            `,
+            buttons: [{ label: 'OK', value: null }]
+        })
+    }
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -289,9 +318,37 @@ window.addEventListener('DOMContentLoaded', () => {
     $('#btn-new-profile').onclick = () => ipcRenderer.send('open-editor', null)
     $('#btn-edit-profile').onclick = () => ipcRenderer.send('open-editor', active)
     $('#btn-launch').onclick = launch
+    $('#btn-clear-logs').onclick = clearLogs
 
     $('#minimize-btn').onclick = () => ipcRenderer.send('window-minimize');
     $('#close-btn').onclick = () => ipcRenderer.send('close-launcher');
+
+    // Event listeners para pestañas
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabName = btn.getAttribute('data-tab')
+            switchTab(tabName)
+        })
+    })
+
+    // Escuchar logs del main process
+    ipcRenderer.on('launcher-log', (event, data) => {
+        addLogEntry(data.message, data.type || 'info', data.timestamp)
+    })
+
+    // Escuchar logs de assets
+    ipcRenderer.on('asset-progress', (event, data) => {
+        updateAssetProgress(data.current, data.total, data.percentage)
+        addAssetLogEntry(`📦 Progreso: ${data.current}/${data.total} (${data.percentage}%)`, data.timestamp)
+    })
+
+    // Escuchar cuando Minecraft se cierre
+    ipcRenderer.on('minecraft-closed', () => {
+        const launchBtn = $('#btn-launch')
+        launchBtn.disabled = false
+        launchBtn.textContent = '🚀 ¡JUGAR!'
+        addLogEntry('🎮 Minecraft se ha cerrado', 'info')
+    })
 
     ipcRenderer.on('profile-saved', (_e, name) => {
         profiles = loadProfiles()

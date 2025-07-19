@@ -1,6 +1,6 @@
 # HaporeLauncher
 
-> *Minecraft No‑Premium desktop launcher construido con Electron + Python*
+> *Minecraft No‑Premium desktop launcher construido completamente con Electron + Node.js*
 
 ---
 
@@ -13,20 +13,19 @@
 5. [Uso](#uso)
 6. [Empaquetado y distribución](#empaquetado-y-distribución)
 7. [Estructura del proyecto](#estructura-del-proyecto)
-8. [CLI del backend](#cli-del-backend)
-9. [Contribuir](#contribuir)
-10. [Licencia](#licencia)
+8. [Contribuir](#contribuir)
+9. [Licencia](#licencia)
 
 ---
 
 ## Descripción
 
-**HaporeLauncher** es un lanzador no‑premium para Minecraft escrito en JavaScript (Electron) y Python.
-La interfaz gráfica corre en Electron y delega todas las operaciones específicas del juego (descarga de versiones, instalación de mod‑loaders, construcción y ejecución del comando `java`) a un módulo Python (`gwlauncher_backend.py`).
+**HaporeLauncher** es un lanzador no‑premium para Minecraft escrito completamente en JavaScript (Electron + Node.js).
+Toda la lógica del launcher, incluyendo la descarga de versiones, instalación de mod‑loaders, gestión de Java y lanzamiento del juego, se ejecuta directamente en el proceso principal de Electron.
 
-Diseñado para ser **multiplataforma** (Windows, macOS y Linux) y fácil de clonar, ejecutar y empaquetar.
+Diseñado para ser **multiplataforma** (Windows, macOS y Linux), **independiente** y fácil de clonar, ejecutar y empaquetar.
 
-### ✨ Nuevas características de diseño
+### ✨ Características de diseño
 
 - 🎨 **Interfaz moderna** con efectos glassmorphism
 - 🌈 **Paleta de colores mejorada** con gradientes atractivos
@@ -38,12 +37,14 @@ Diseñado para ser **multiplataforma** (Windows, macOS y Linux) y fácil de clon
 ## Características
 
 * Descarga automática de cualquier versión oficial de Minecraft.
+* **Obtención automática de versiones** desde la API de Mojang.
 * Soporte opcional para **Forge**, **Fabric** y **Vanilla**.
 * Ejecución *offline* con UUID determinista por nombre de usuario.
 * Persiste el último perfil usado en `~/.haporelauncher/profiles.json`.
-* CLI de backend para instalar, lanzar o listar versiones sin abrir la GUI.
 * Interfaz moderna con efectos visuales atractivos.
 * Gestión de perfiles intuitiva y visual.
+* **Arquitectura simplificada** - toda la lógica en un solo proceso.
+* **Completamente independiente** - no requiere Python ni dependencias externas.
 
 ## Requisitos
 
@@ -51,26 +52,21 @@ Diseñado para ser **multiplataforma** (Windows, macOS y Linux) y fácil de clon
 | ----------- | ------------------- | ------------------------------ |
 | **Node.js** | ≥ 18.x              | Probado con Electron 37        |
 | **npm**     | Pareada con tu Node | —                              |
-| **Python**  | ≥ 3.9               | Necesario por `typing.Literal` |
 | **Git**     | Cualquiera          | Para clonar el repo            |
 
-### Dependencias Node (vienen en `package.json`)
+### Dependencias Node.js (incluidas en `package.json`)
 
 ```json
-"dependencies": {},
-"devDependencies": {
-  "electron": "^37.2.3",
-  "electron-builder": "^24.0.0"
+{
+  "minecraft-launcher-core": "^3.18.2",
+  "axios": "^1.6.0",
+  "adm-zip": "^0.5.10",
+  "node-fetch": "^2.7.0",
+  "uuid": "^9.0.1"
 }
 ```
 
-### Dependencias Python (archivo [`requirements.txt`](requirements.txt))
-
-```text
-minecraft-launcher-lib>=7.1
-```
-
-> Si alguna otra librería se añade en el futuro, recuerda actualizar ambos archivos.
+> Todas las dependencias se instalan automáticamente con `npm install`.
 
 ## Instalación
 
@@ -81,9 +77,6 @@ $ cd hapore-launcher
 
 # 2. Instalar dependencias Node
 $ npm install
-
-# 3. Instalar dependencias Python
-$ pip install -r requirements.txt
 ```
 
 ## Uso
@@ -94,20 +87,16 @@ $ pip install -r requirements.txt
 $ npm run start
 ```
 
-La ventana mostrará la GUI moderna y, al pulsar **🚀 ¡JUGAR!**, ejecutará el backend Python y volcará la salida en el `pre#log`.
+La ventana mostrará la GUI moderna y, al pulsar **🚀 ¡JUGAR!**, ejecutará Minecraft directamente desde el proceso principal.
 
-### Ejecución del backend en consola
+### Funcionalidades integradas
 
-```bash
-# Instalar una versión
-$ python src/python/gwlauncher_backend.py install 1.21.1
-
-# Lanzar en modo offline con 4 GiB de RAM y Forge
-$ python src/python/gwlauncher_backend.py launch 1.21.1 Alex --ram 4096 --modloader forge
-
-# Listar catálogo de versiones (JSON)
-$ python src/python/gwlauncher_backend.py versions
-```
+- **Gestión de perfiles**: Crear, editar y eliminar perfiles de Minecraft
+- **Selector de versiones**: Lista automática de versiones disponibles
+- **Configuración de memoria**: Ajustar RAM asignada al juego
+- **Modloaders**: Soporte para Forge, Fabric y Vanilla
+- **Argumentos JVM**: Configuración avanzada de Java
+- **Descarga automática**: Java y versiones se descargan automáticamente
 
 ## Empaquetado y distribución
 
@@ -123,62 +112,69 @@ Por defecto generará instaladores en `dist/`:
 * **macOS**  → `HaporeLauncher.dmg` (PROXIMAMENTE)
 * **Linux**  → `HaporeLauncher.AppImage` (PROXIMAMENTE)
 
-Ajusta la sección **`build`** de `package.json` para cambiar íconos, targets o metadatos.
+### Configuración de empaquetado
+
+El archivo `package.json` incluye la configuración completa para electron‑builder:
+
+```json
+{
+  "build": {
+    "appId": "com.haporelauncher.app",
+    "productName": "HaporeLauncher",
+    "win": {
+      "target": "nsis",
+      "icon": "src/icon.ico"
+    }
+  }
+}
+```
 
 ## Estructura del proyecto
 
-```text
-├─ main.js                 # Proceso principal de Electron
-├─ package.json            # Configuración Node/Electron
-├─ requirements.txt        # Dependencias Python
-├─ src/
-│  ├─ index.html           # GUI principal
-│  ├─ renderer.js          # Lógica de la ventana
-│  ├─ styles.css           # Estilos modernos
-│  ├─ icon.ico             # Ícono Windows
-│  ├─ editor/              # Editor de perfiles
-│  └─ python/              # Backend Python
-├─ assets/                 # Imágenes y recursos
-└─ dist/                   # (se genera al compilar)
+```
+HaporeLauncher/
+├── main.js                 # Proceso principal con toda la lógica del launcher
+├── package.json            # Configuración del proyecto y dependencias
+├── src/
+│   ├── index.html          # Interfaz principal
+│   ├── styles.css          # Estilos modernos con glassmorphism
+│   ├── animations.css      # Animaciones y efectos visuales
+│   ├── renderer.js         # Lógica del renderer (comunicación IPC)
+│   ├── config.js           # Configuración centralizada
+│   ├── icon.ico            # Icono de la aplicación
+│   └── editor/
+│       ├── profile-editor.html  # Editor de perfiles
+│       └── editor.js            # Lógica del editor
+├── assets/                 # Recursos gráficos
+├── README.md               # Este archivo
+└── CHANGELOG.md            # Registro de cambios
 ```
 
-## CLI del backend
+### Arquitectura simplificada
 
-| Comando              | Descripción                                                                               |        |             |
-| -------------------- | ----------------------------------------------------------------------------------------- | ------ | ----------- |
-| `install <ver>`      | Descarga o actualiza la versión indicada.                                                 |        |             |
-| `launch <ver> <usr>` | Lanza el juego en modo offline. Args extra:<br>• `--ram <MiB>`<br>• `--modloader <forge \| fabric \| neoforge>` |
-
-## Características de la nueva interfaz
-
-### 🎨 Diseño visual
-- **Glassmorphism**: Efectos de cristal y transparencia
-- **Gradientes modernos**: Colores vibrantes y atractivos
-- **Animaciones suaves**: Transiciones fluidas en todos los elementos
-- **Iconografía mejorada**: Emojis y elementos visuales intuitivos
-
-### 🚀 Experiencia de usuario
-- **Feedback visual**: Efectos hover y estados activos claros
-- **Navegación intuitiva**: Sidebar mejorada con mejor organización
-- **Responsive design**: Adaptable a diferentes tamaños de pantalla
-- **Accesibilidad**: Contraste mejorado y elementos claramente identificables
-
-### ⚡ Rendimiento
-- **Optimización CSS**: Variables CSS para consistencia
-- **Animaciones eficientes**: Uso de transform y opacity para mejor rendimiento
-- **Carga rápida**: Estructura optimizada para tiempos de carga mínimos
+- **Proceso principal** (`main.js`): Contiene toda la lógica del launcher
+- **Proceso de renderer** (`renderer.js`): Maneja la interfaz y comunicación IPC
+- **Comunicación IPC**: Intercambio de datos entre procesos de forma eficiente
+- **Sin backend separado**: Toda la funcionalidad integrada en Electron
 
 ## Contribuir
 
-1. Crea un *fork* y una rama (`feat/…` o `fix/…`).
-2. Haz cambios atómicos y documenta en el *commit*.
-3. Abre un *pull request* describiendo el problema y la solución.
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
 
-> Sigue las buenas prácticas de *clean code* y formatea con Prettier / Black.
+### Guías de desarrollo
+
+- **Estilo de código**: Seguir las convenciones de JavaScript/Node.js
+- **Commits**: Usar mensajes descriptivos en español
+- **Testing**: Probar en Windows, macOS y Linux cuando sea posible
+- **Documentación**: Actualizar README y CHANGELOG para cambios importantes
 
 ## Licencia
 
-Este proyecto se publica bajo la licencia **MIT**. Consulta [`LICENSE`](LICENSE) para más detalles.
+Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
 
 ---
 

@@ -57,6 +57,40 @@
           ℹ️ Aquí aparecerán las noticias y changelogs de Minecraft…
         </p>
       </section>
+      
+      <section id="logs" class="logs hidden">
+        <div class="logs-header">
+          <h3>📋 Logs del Launcher</h3>
+          <div class="logs-tabs">
+            <button id="tab-general" class="tab-btn active" data-tab="general">📊 General</button>
+            <button id="tab-assets" class="tab-btn" data-tab="assets">📦 Assets</button>
+          </div>
+          <button id="btn-clear-logs" class="logs-clear">🗑️ Limpiar</button>
+        </div>
+        
+        <div id="tab-general-content" class="tab-content active">
+          <div id="logs-content" class="logs-content">
+            <p class="logs__placeholder">
+              ℹ️ Los logs generales aparecerán aquí cuando lances Minecraft…
+            </p>
+          </div>
+        </div>
+        
+        <div id="tab-assets-content" class="tab-content">
+          <div class="assets-progress">
+            <div class="progress-bar">
+              <div id="assets-progress-fill" class="progress-fill"></div>
+            </div>
+            <div id="assets-progress-text" class="progress-text">0% (0/0)</div>
+          </div>
+          <div id="assets-content" class="logs-content">
+            <p class="logs__placeholder">
+              ℹ️ El progreso de assets aparecerá aquí…
+            </p>
+          </div>
+        </div>
+      </section>
+      
       <button id="btn-launch" class="launch" disabled>🚀 ¡JUGAR!</button>
     </main>
   </div>

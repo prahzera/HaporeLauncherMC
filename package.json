@@ -1,6 +1,6 @@
 {
   "name": "hapore-launcher",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "HaporeLauncher - Minecraft No-Premium and Premium Launcher",
   "main": "main.js",
   "scripts": {
@@ -19,22 +19,17 @@
       "src/**/*",
       "preload.js",
       "assets/**/*"
-    ],
-    "extraFiles": [
-      {
-        "from": "src/python",
-        "to": "python"
-      }
     ]
+  },
+  "dependencies": {
+    "minecraft-launcher-core": "^3.18.2",
+    "axios": "^1.6.0",
+    "adm-zip": "^0.5.10",
+    "node-fetch": "^2.7.0",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "electron": "^37.2.3",
     "electron-builder": "^24.0.0"
-  },
-  "dependencies": {
-    "adm-zip": "^0.5.16",
-    "axios": "^1.10.0",
-    "minecraft-launcher-core": "^3.18.2",
-    "node-fetch": "^2.7.0"
   }
 }

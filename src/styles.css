@@ -450,9 +450,19 @@ body {
 }
 
 .launch[disabled] {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
-  background: var(--fg-secondary);
+  background: var(--glass);
+  border-color: var(--glass-border);
+  color: var(--fg-secondary);
+  transform: none;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+.launch[disabled]:hover {
+  background: var(--glass);
+  border-color: var(--glass-border);
   transform: none;
   box-shadow: none;
 }
@@ -768,4 +778,239 @@ body {
 .modal-btn.secondary:hover {
   background: var(--glass);
   border-color: var(--primary);
+}
+
+/* ---------- Área de Logs ---------- */
+.logs {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin: 1rem 0;
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.logs.hidden {
+  display: none;
+}
+
+.logs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.logs-header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--fg);
+  margin: 0;
+}
+
+.logs-clear {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  color: var(--fg-secondary);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(5px);
+}
+
+.logs-clear:hover {
+  background: var(--danger);
+  color: white;
+  transform: scale(1.05);
+}
+
+.logs-content {
+  max-height: 300px;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.logs-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.logs-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.logs-content::-webkit-scrollbar-thumb {
+  background: var(--glass-border);
+  border-radius: 4px;
+}
+
+.logs-content::-webkit-scrollbar-thumb:hover {
+  background: var(--glass);
+}
+
+.logs__placeholder {
+  color: var(--fg-secondary);
+  font-style: italic;
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.log-entry {
+  margin-bottom: 0.5rem;
+  padding: 0.25rem 0;
+  border-left: 3px solid transparent;
+  padding-left: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.log-entry:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-left-color: var(--accent);
+}
+
+.log-entry.info {
+  color: var(--fg);
+}
+
+.log-entry.success {
+  color: var(--success);
+  border-left-color: var(--success);
+}
+
+.log-entry.warning {
+  color: var(--warning);
+  border-left-color: var(--warning);
+}
+
+.log-entry.error {
+  color: var(--danger);
+  border-left-color: var(--danger);
+}
+
+.log-entry.debug {
+  color: var(--fg-secondary);
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.log-timestamp {
+  color: var(--fg-secondary);
+  font-size: 0.75rem;
+  margin-right: 0.5rem;
+  opacity: 0.7;
+}
+
+/* ---------- Pestañas de logs ---------- */
+.logs-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-right: 1rem;
+}
+
+.tab-btn {
+  padding: 0.5rem 1rem;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  color: var(--fg-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.tab-btn:hover {
+  background: var(--glass-border);
+  color: var(--fg);
+  transform: translateY(-1px);
+}
+
+.tab-btn.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.tab-content {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* ---------- Progreso de assets ---------- */
+.assets-progress {
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--glass-border);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--glass);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: 4px;
+  transition: width 0.3s ease;
+  width: 0%;
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.progress-text {
+  text-align: center;
+  color: var(--fg);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* ---------- Logs de assets ---------- */
+.log-entry.assets {
+  border-left-color: var(--accent);
+  background: rgba(6, 182, 212, 0.1);
+}
+
+.log-entry.assets:hover {
+  background: rgba(6, 182, 212, 0.2);
 }
