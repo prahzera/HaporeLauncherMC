@@ -1,10 +1,10 @@
-/* HaporeLauncher - Animaciones y efectos visuales */
+/* ---------- Animaciones mejoradas para HaporeLauncher ---------- */
 
-/* ---------- Animaciones de entrada ---------- */
+/* Animación de entrada para elementos principales */
 @keyframes slideInFromLeft {
   from {
     opacity: 0;
-    transform: translateX(-50px);
+    transform: translateX(-30px);
   }
   to {
     opacity: 1;
@@ -15,7 +15,7 @@
 @keyframes slideInFromRight {
   from {
     opacity: 0;
-    transform: translateX(50px);
+    transform: translateX(30px);
   }
   to {
     opacity: 1;
@@ -26,7 +26,7 @@
 @keyframes slideInFromTop {
   from {
     opacity: 0;
-    transform: translateY(-50px);
+    transform: translateY(-30px);
   }
   to {
     opacity: 1;
@@ -37,7 +37,7 @@
 @keyframes slideInFromBottom {
   from {
     opacity: 0;
-    transform: translateY(50px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -45,6 +45,7 @@
   }
 }
 
+/* Animación de escala para botones */
 @keyframes scaleIn {
   from {
     opacity: 0;
@@ -56,10 +57,11 @@
   }
 }
 
+/* Animación de rotación para iconos */
 @keyframes rotateIn {
   from {
     opacity: 0;
-    transform: rotate(-180deg) scale(0.3);
+    transform: rotate(-180deg) scale(0.5);
   }
   to {
     opacity: 1;
@@ -67,119 +69,98 @@
   }
 }
 
-/* ---------- Animaciones de hover ---------- */
+/* Animación de brillo para elementos interactivos */
 @keyframes glow {
   0%, 100% {
-    box-shadow: 0 0 5px var(--primary);
+    box-shadow: 0 0 5px rgba(99, 102, 241, 0.3);
   }
   50% {
-    box-shadow: 0 0 20px var(--primary), 0 0 30px var(--primary);
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.6);
   }
 }
 
-@keyframes shimmer {
-  0% {
-    background-position: -200% center;
+/* Animación de pulso mejorada */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
   }
-  100% {
-    background-position: 200% center;
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
   }
 }
 
+/* Animación de rebote */
 @keyframes bounce {
   0%, 20%, 53%, 80%, 100% {
-    transform: translate3d(0, 0, 0);
+    transform: translateY(0);
   }
   40%, 43% {
-    transform: translate3d(0, -8px, 0);
+    transform: translateY(-10px);
   }
   70% {
-    transform: translate3d(0, -4px, 0);
+    transform: translateY(-5px);
   }
   90% {
-    transform: translate3d(0, -2px, 0);
+    transform: translateY(-2px);
   }
 }
 
-@keyframes wiggle {
-  0%, 7% {
-    transform: rotateZ(0);
+/* Animación de ondulación */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
   }
-  15% {
-    transform: rotateZ(-15deg);
-  }
-  20% {
-    transform: rotateZ(10deg);
-  }
-  25% {
-    transform: rotateZ(-10deg);
-  }
-  30% {
-    transform: rotateZ(6deg);
-  }
-  35% {
-    transform: rotateZ(-4deg);
-  }
-  40%, 100% {
-    transform: rotateZ(0);
+  100% {
+    transform: scale(4);
+    opacity: 0;
   }
 }
 
-/* ---------- Animaciones de carga ---------- */
-@keyframes spin {
+/* Animación de desvanecimiento */
+@keyframes fadeIn {
   from {
-    transform: rotate(0deg);
+    opacity: 0;
   }
   to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Animación de deslizamiento para pestañas */
+@keyframes tabSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Animación de carga */
+@keyframes loading {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
     transform: rotate(360deg);
   }
 }
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.05);
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ---------- Efectos de partículas mejorados ---------- */
-@keyframes sparkle {
-  0%, 100% {
-    opacity: 0;
-    transform: scale(0) rotate(0deg);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1) rotate(180deg);
-  }
-}
-
+/* Animación de partículas flotantes */
 @keyframes float {
   0% {
     transform: translateY(-100%) translateX(0) rotate(0deg);
@@ -197,315 +178,289 @@
   }
 }
 
-@keyframes drift {
+/* Animación de shimmer para elementos de carga */
+@keyframes shimmer {
   0% {
-    transform: translateX(-100px) translateY(0);
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
+    background-position: -200px 0;
   }
   100% {
-    transform: translateX(100px) translateY(-50px);
-    opacity: 0;
+    background-position: calc(200px + 100%) 0;
   }
 }
 
-/* ---------- Efectos de botones ---------- */
-@keyframes buttonPress {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(0.95);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
+/* Aplicación de animaciones a elementos específicos */
 
-@keyframes ripple {
-  0% {
-    transform: scale(0);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(4);
-    opacity: 0;
-  }
-}
-
-/* ---------- Efectos de texto ---------- */
-@keyframes typewriter {
-  from {
-    width: 0;
-  }
-  to {
-    width: 100%;
-  }
-}
-
-@keyframes blink {
-  0%, 50% {
-    opacity: 1;
-  }
-  51%, 100% {
-    opacity: 0;
-  }
-}
-
-@keyframes textGlow {
-  0%, 100% {
-    text-shadow: 0 0 5px var(--primary);
-  }
-  50% {
-    text-shadow: 0 0 20px var(--primary), 0 0 30px var(--primary);
-  }
-}
-
-/* ---------- Efectos de fondo ---------- */
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@keyframes backgroundPulse {
-  0%, 100% {
-    background-color: var(--bg);
-  }
-  50% {
-    background-color: rgba(99, 102, 241, 0.1);
-  }
-}
-
-/* ---------- Clases de utilidad para animaciones ---------- */
-.animate-slide-in-left {
+/* Animación de entrada para el sidebar */
+.sidebar {
   animation: slideInFromLeft 0.6s ease-out;
 }
 
-.animate-slide-in-right {
-  animation: slideInFromRight 0.6s ease-out;
+/* Animación de entrada para el contenido principal */
+.content {
+  animation: slideInFromRight 0.6s ease-out 0.2s both;
 }
 
-.animate-slide-in-top {
-  animation: slideInFromTop 0.6s ease-out;
+/* Animación para las pestañas principales */
+.main-tab-btn {
+  animation: scaleIn 0.4s ease-out;
 }
 
-.animate-slide-in-bottom {
-  animation: slideInFromBottom 0.6s ease-out;
+.main-tab-btn:nth-child(1) { animation-delay: 0.1s; }
+.main-tab-btn:nth-child(2) { animation-delay: 0.2s; }
+.main-tab-btn:nth-child(3) { animation-delay: 0.3s; }
+.main-tab-btn:nth-child(4) { animation-delay: 0.4s; }
+
+/* Animación para el contenido de pestañas */
+.main-tab-content.active {
+  animation: tabSlideIn 0.3s ease-out;
 }
 
-.animate-scale-in {
-  animation: scaleIn 0.5s ease-out;
+/* Animación para las tarjetas de información */
+.info-card {
+  animation: slideInFromBottom 0.5s ease-out;
 }
 
-.animate-rotate-in {
-  animation: rotateIn 0.8s ease-out;
+.info-card:nth-child(1) { animation-delay: 0.3s; }
+.info-card:nth-child(2) { animation-delay: 0.4s; }
+
+/* Animación para el botón de lanzar */
+.launch {
+  animation: scaleIn 0.6s ease-out 0.5s both;
 }
 
-.animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out;
+/* Animación para las acciones rápidas */
+.quick-btn {
+  animation: rotateIn 0.5s ease-out;
 }
 
-.animate-fade-in-down {
-  animation: fadeInDown 0.6s ease-out;
+.quick-btn:nth-child(1) { animation-delay: 0.6s; }
+.quick-btn:nth-child(2) { animation-delay: 0.7s; }
+.quick-btn:nth-child(3) { animation-delay: 0.8s; }
+
+/* Animación para elementos de la lista de perfiles */
+.sidebar__list li {
+  animation: slideInFromLeft 0.4s ease-out;
 }
 
-.animate-pulse {
-  animation: pulse 2s ease-in-out infinite;
+.sidebar__list li:nth-child(1) { animation-delay: 0.1s; }
+.sidebar__list li:nth-child(2) { animation-delay: 0.2s; }
+.sidebar__list li:nth-child(3) { animation-delay: 0.3s; }
+.sidebar__list li:nth-child(4) { animation-delay: 0.4s; }
+.sidebar__list li:nth-child(5) { animation-delay: 0.5s; }
+
+/* Animación para elementos de noticias */
+.news-item {
+  animation: slideInFromTop 0.4s ease-out;
 }
 
-.animate-bounce {
-  animation: bounce 1s ease-in-out;
+.news-item:nth-child(1) { animation-delay: 0.1s; }
+.news-item:nth-child(2) { animation-delay: 0.2s; }
+
+/* Animación para elementos de configuración */
+.setting-group {
+  animation: slideInFromLeft 0.4s ease-out;
 }
 
-.animate-wiggle {
-  animation: wiggle 0.8s ease-in-out;
-}
+.setting-group:nth-child(1) { animation-delay: 0.1s; }
+.setting-group:nth-child(2) { animation-delay: 0.2s; }
+.setting-group:nth-child(3) { animation-delay: 0.3s; }
 
-.animate-glow {
+/* Efectos hover mejorados */
+.main-tab-btn:hover {
   animation: glow 2s ease-in-out infinite;
 }
 
-.animate-spin {
-  animation: spin 1s linear infinite;
+.launch:hover {
+  animation: bounce 0.6s ease-in-out;
 }
 
-.animate-shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
+.quick-btn:hover {
+  animation: rotateIn 0.3s ease-in-out;
 }
 
-/* ---------- Efectos de hover mejorados ---------- */
-.hover-lift {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* Animación de carga para elementos dinámicos */
+.loading {
+  animation: loading 1s linear infinite;
 }
 
-.hover-lift:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-}
-
-.hover-glow {
-  transition: box-shadow 0.3s ease;
-}
-
-.hover-glow:hover {
-  box-shadow: 0 0 20px var(--primary);
-}
-
-.hover-scale {
-  transition: transform 0.3s ease;
-}
-
-.hover-scale:hover {
-  transform: scale(1.05);
-}
-
-.hover-rotate {
-  transition: transform 0.3s ease;
-}
-
-.hover-rotate:hover {
-  transform: rotate(5deg);
-}
-
-/* ---------- Efectos de carga ---------- */
-.loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid var(--glass);
-  border-top: 4px solid var(--primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-.loading-dots {
-  display: inline-block;
-}
-
-.loading-dots::after {
-  content: '';
-  animation: dots 1.5s steps(5, end) infinite;
-}
-
-@keyframes dots {
-  0%, 20% {
-    content: '';
-  }
-  40% {
-    content: '.';
-  }
-  60% {
-    content: '..';
-  }
-  80%, 100% {
-    content: '...';
-  }
-}
-
-/* ---------- Efectos de transición suave ---------- */
-.smooth-transition {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.smooth-transition-fast {
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.smooth-transition-slow {
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ---------- Efectos de glassmorphism mejorados ---------- */
-.glass-effect {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-.glass-effect-strong {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-}
-
-/* ---------- Efectos de gradiente animado ---------- */
-.gradient-animated {
-  background: linear-gradient(-45deg, var(--primary), var(--accent), var(--primary-hov), var(--accent-hov));
-  background-size: 400% 400%;
-  animation: gradientShift 3s ease infinite;
-}
-
-/* ---------- Efectos de texto animado ---------- */
-.text-gradient {
-  background: var(--launch-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.text-glow {
-  animation: textGlow 2s ease-in-out infinite;
-}
-
-/* ---------- Efectos de botón con ripple ---------- */
+/* Efecto de ondulación para botones */
 .btn-ripple {
   position: relative;
   overflow: hidden;
 }
 
-.btn-ripple::before {
+.btn-ripple::after {
   content: '';
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
 }
 
-.btn-ripple:active::before {
-  width: 300px;
-  height: 300px;
+.btn-ripple:active::after {
+  animation: ripple 0.6s ease-out;
 }
 
-/* ---------- Efectos de notificación ---------- */
-.notification-enter {
-  animation: slideInFromRight 0.3s ease-out;
+/* Animación para elementos que aparecen dinámicamente */
+.dynamic-content {
+  animation: fadeIn 0.3s ease-out;
 }
 
-.notification-exit {
-  animation: slideInFromRight 0.3s ease-in reverse;
+/* Animación para elementos que desaparecen */
+.fade-out {
+  animation: fadeOut 0.3s ease-out;
 }
 
-/* ---------- Efectos de modal ---------- */
-.modal-enter {
+/* Animación para el progreso de assets */
+.progress-fill {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(90deg, 
+    var(--primary) 0%, 
+    var(--accent) 50%, 
+    var(--primary) 100%);
+  background-size: 200px 100%;
+}
+
+/* Animación para el logo del sidebar */
+.sidebar-logo {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Animación para iconos de información */
+.info-icon {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Animación para elementos de estado */
+.status-indicator {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* Animación para notificaciones */
+.notification {
+  animation: slideInFromTop 0.4s ease-out;
+}
+
+/* Animación para modales */
+#modal-box {
   animation: scaleIn 0.3s ease-out;
 }
 
-.modal-exit {
-  animation: scaleIn 0.3s ease-in reverse;
+/* Animación para elementos de log */
+.log-entry {
+  animation: slideInFromLeft 0.3s ease-out;
 }
 
-/* ---------- Efectos de sidebar ---------- */
-.sidebar-enter {
+/* Animación para elementos de configuración */
+.setting-item {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Animación para elementos de progreso */
+.progress-bar {
   animation: slideInFromLeft 0.4s ease-out;
 }
 
-.sidebar-exit {
-  animation: slideInFromLeft 0.4s ease-in reverse;
+/* Animación para elementos de navegación */
+.nav-item {
+  animation: slideInFromLeft 0.3s ease-out;
+}
+
+/* Animación para elementos de estado del sistema */
+.system-status {
+  animation: pulse 3s ease-in-out infinite;
+}
+
+/* Animación para elementos de carga de datos */
+.data-loading {
+  animation: shimmer 1.5s infinite linear;
+  background: linear-gradient(90deg, 
+    var(--glass) 0%, 
+    var(--glass-border) 50%, 
+    var(--glass) 100%);
+  background-size: 200px 100%;
+}
+
+/* Animación para elementos de éxito */
+.success-animation {
+  animation: bounce 0.6s ease-in-out;
+}
+
+/* Animación para elementos de error */
+.error-animation {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* Animación para elementos de advertencia */
+.warning-animation {
+  animation: pulse 1s ease-in-out infinite;
+}
+
+/* Animación para elementos de información */
+.info-animation {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Animación para elementos de debug */
+.debug-animation {
+  animation: fadeIn 0.3s ease-out;
+  opacity: 0.7;
+}
+
+/* Animación para elementos de assets */
+.assets-animation {
+  animation: slideInFromRight 0.4s ease-out;
+}
+
+/* Animación para elementos de configuración avanzada */
+.advanced-setting {
+  animation: slideInFromBottom 0.4s ease-out;
+}
+
+/* Animación para elementos de ayuda */
+.help-element {
+  animation: scaleIn 0.4s ease-out;
+}
+
+/* Animación para elementos de estadísticas */
+.stats-element {
+  animation: slideInFromTop 0.4s ease-out;
+}
+
+/* Animación para elementos de perfil */
+.profile-element {
+  animation: slideInFromLeft 0.4s ease-out;
+}
+
+/* Animación para elementos de noticias */
+.news-element {
+  animation: slideInFromRight 0.4s ease-out;
+}
+
+/* Animación para elementos de logs */
+.logs-element {
+  animation: slideInFromBottom 0.4s ease-out;
+}
+
+/* Animación para elementos de configuración */
+.settings-element {
+  animation: slideInFromTop 0.4s ease-out;
 } 

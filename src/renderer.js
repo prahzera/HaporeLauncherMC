@@ -8,16 +8,137 @@ const versionsDir = path.join(os.homedir(), '.haporelauncher', 'instances')
 
 let active = null
 let profiles = {}
+let currentMainTab = 'profiles'
+
+// Funciones para manejar pestañas principales
+function switchMainTab(tabName) {
+    // Remover clase active de todas las pestañas principales y contenidos
+    document.querySelectorAll('.main-tab-btn').forEach(btn => btn.classList.remove('active'))
+    document.querySelectorAll('.main-tab-content').forEach(content => content.classList.remove('active'))
+    
+    // Activar la pestaña seleccionada
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active')
+    document.getElementById(`tab-${tabName}-content`).classList.add('active')
+    
+    currentMainTab = tabName
+    
+    // Actualizar el contenido según la pestaña
+    updateTabContent(tabName)
+}
+
+function updateTabContent(tabName) {
+    switch(tabName) {
+        case 'profiles':
+            updateProfileStatus()
+            break
+        case 'news':
+            loadNews()
+            break
+        case 'logs':
+            // Los logs se actualizan automáticamente
+            break
+        case 'settings':
+            loadSettings()
+            break
+    }
+}
+
+function updateProfileStatus() {
+    const profileStatus = $('#profile-status')
+    const profileStats = $('#profile-stats')
+    const profileHeadline = $('#profile-headline')
+    const launchBtn = $('#btn-launch')
+    const editBtn = $('#btn-edit-profile')
+    
+    if (active && profiles[active]) {
+        const profile = profiles[active]
+        profileStatus.textContent = `Perfil activo: ${active}`
+        profileHeadline.textContent = active
+        launchBtn.disabled = false
+        editBtn.disabled = false
+        
+        // Calcular estadísticas
+        const totalProfiles = Object.keys(profiles).length
+        const playTime = profile.lastPlayed ? '2h 30m' : '0h' // Ejemplo
+        profileStats.textContent = `Perfiles: ${totalProfiles} | Tiempo jugado: ${playTime}`
+    } else {
+        profileStatus.textContent = 'No hay perfil seleccionado'
+        profileHeadline.textContent = 'Selecciona un perfil'
+        profileStats.textContent = `Perfiles: ${Object.keys(profiles).length} | Tiempo jugado: 0h`
+        launchBtn.disabled = true
+        editBtn.disabled = true
+    }
+}
+
+function loadNews() {
+    const newsContent = $('#news-content')
+    // Simular carga de noticias
+    newsContent.innerHTML = `
+        <div class="news-item">
+            <h4>🎮 Minecraft 1.21 - Actualización disponible</h4>
+            <p>Nueva actualización con mejoras de rendimiento y nuevas características...</p>
+            <small>Hace 2 días</small>
+        </div>
+        <div class="news-item">
+            <h4>🔧 Mejoras en el launcher</h4>
+            <p>Nueva interfaz con pestañas y mejor experiencia de usuario...</p>
+            <small>Hace 1 semana</small>
+        </div>
+    `
+}
+
+function loadSettings() {
+    // Cargar configuración guardada
+    const settings = getSettings()
+    
+    $('#ram-selector').value = settings.ram || '2'
+    $('#resolution-selector').value = settings.resolution || '1280x720'
+    $('#theme-selector').value = settings.theme || 'dark'
+    $('#animations-toggle').checked = settings.animations !== false
+    $('#auto-update-toggle').checked = settings.autoUpdate !== false
+    $('#auto-logs-toggle').checked = settings.autoLogs || false
+}
+
+function getSettings() {
+    try {
+        const settingsFile = path.join(os.homedir(), '.haporelauncher', 'settings.json')
+        return JSON.parse(fs.readFileSync(settingsFile, 'utf8'))
+    } catch {
+        return {}
+    }
+}
+
+function saveSettings() {
+    try {
+        const settingsFile = path.join(os.homedir(), '.haporelauncher', 'settings.json')
+        const settings = {
+            ram: $('#ram-selector').value,
+            resolution: $('#resolution-selector').value,
+            theme: $('#theme-selector').value,
+            animations: $('#animations-toggle').checked,
+            autoUpdate: $('#auto-update-toggle').checked,
+            autoLogs: $('#auto-logs-toggle').checked
+        }
+        
+        // Asegurar que el directorio existe
+        const settingsDir = path.dirname(settingsFile)
+        if (!fs.existsSync(settingsDir)) {
+            fs.mkdirSync(settingsDir, { recursive: true })
+        }
+        
+        fs.writeFileSync(settingsFile, JSON.stringify(settings, null, 2))
+    } catch (error) {
+        console.error('Error guardando configuración:', error)
+    }
+}
 
 // Funciones para manejar logs
 function showLogs() {
-    const logsSection = $('#logs')
-    logsSection.classList.remove('hidden')
+    switchMainTab('logs')
 }
 
 function hideLogs() {
-    const logsSection = $('#logs')
-    logsSection.classList.add('hidden')
+    // Los logs ahora están en una pestaña separada
 }
 
 function addLogEntry(message, type = 'info', timestamp = null) {
@@ -42,6 +163,12 @@ function addLogEntry(message, type = 'info', timestamp = null) {
     
     // Auto-scroll al final
     logsContent.scrollTop = logsContent.scrollHeight
+    
+    // Si los logs automáticos están habilitados, mostrar la pestaña de logs
+    const settings = getSettings()
+    if (settings.autoLogs && currentMainTab !== 'logs') {
+        switchMainTab('logs')
+    }
 }
 
 function addAssetLogEntry(message, timestamp = null) {
@@ -88,7 +215,7 @@ function clearLogs() {
     progressText.textContent = '0% (0/0)'
 }
 
-// Funciones para manejar pestañas
+// Funciones para manejar pestañas secundarias
 function switchTab(tabName) {
     // Remover clase active de todas las pestañas y contenidos
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'))
@@ -169,6 +296,7 @@ function renderProfileList() {
         li.onclick = () => {
             active = name
             renderProfileList()
+            updateProfileStatus()
         }
         if (name === active) li.classList.add('active')
 
@@ -197,167 +325,192 @@ function renderProfileList() {
 
         ul.append(li)
     }
-
-    $('#btn-edit-profile').disabled = !active
-    $('#btn-launch').disabled = !active
-    $('#profile-headline').textContent =
-        active ? `Perfil: ${active}` : 'Selecciona un perfil'
 }
 
 function getParticleImage() {
-    const date = new Date()
-    const month = date.getMonth() + 1
-    const day = date.getDate()
-
-    if ((month === 9 && day >= 21) || month === 10 || month === 11 || (month === 12 && day <= 20)) {
-        return '../assets/leaf.webp'
-    } else if ((month === 12 && day >= 21) || month === 1 || month === 2 || (month === 3 && day <= 20)) {
-        return '../assets/sunflower.webp'
-    } else if ((month === 3 && day >= 21) || month === 4 || month === 5 || (month === 6 && day <= 20)) {
-        return '../assets/leaf.webp'
-    } else {
-        return '../assets/snow.webp'
-    }
+  const images = [
+    '../assets/leaf.webp',
+    '../assets/snow.webp',
+    '../assets/sunflower.webp'
+  ]
+  return images[Math.floor(Math.random() * images.length)]
 }
 
 function renderParticles() {
-    const container = document.querySelector('.particle-container')
-    const particleCount = 15
-    const particleImage = getParticleImage()
+  const container = $('.particle-container')
+  const particleCount = 15
 
-    const redLine = document.querySelector('.red-line')
-    const containerTop = container.getBoundingClientRect().top
-    const redY = redLine
-        ? redLine.getBoundingClientRect().top - containerTop
-        : 0
-
-    for (let i = 0; i < particleCount; i++) {
-        const p = document.createElement('img')
-        p.src = particleImage
-        p.classList.add('particle')
-        p.style.left = `${Math.random() * 100}%`
-        p.style.top = `${redY}px`
-        p.style.animationDelay = `${Math.random() * 5}s`
-        p.style.animationDuration = `${8 + Math.random() * 4}s`
-
-        const swayAmount = (Math.random() - 0.5) * 50
-        const rotateAmount = Math.random() * 360
-        p.style.setProperty('--sway', `${swayAmount}px`)
-        p.style.setProperty('--rotate', `${rotateAmount}deg`)
-
-        container.appendChild(p)
-    }
+  for (let i = 0; i < particleCount; i++) {
+    const particle = document.createElement('img')
+    particle.src = getParticleImage()
+    particle.className = 'particle'
+    particle.style.setProperty('--rotate', `${Math.random() * 360}deg`)
+    particle.style.left = `${Math.random() * 100}%`
+    particle.style.animationDelay = `${Math.random() * 15}s`
+    particle.style.animationDuration = `${15 + Math.random() * 10}s`
+    container.appendChild(particle)
+  }
 }
 
 async function launch() {
-    if (!active) return
-    const p = profiles[active]
-    if (!p) return
+  if (!active) {
+    await showModal({
+      title: 'Error',
+      html: 'Por favor selecciona un perfil antes de lanzar Minecraft.',
+      buttons: [{ label: 'OK', value: null }]
+    })
+    return
+  }
 
-    const ok = await ensureNodeBackend()
-    if (!ok) return
-
-    try {
-        // Deshabilitar el botón de lanzar y cambiar el texto
-        const launchBtn = $('#btn-launch')
-        launchBtn.disabled = true
-        launchBtn.textContent = '🚀 Iniciando...'
-        
-        // Mostrar área de logs y cambiar a pestaña general
-        showLogs()
-        switchTab('general')
-        clearLogs()
-        
-        const options = {
-            ram: p.ram ? parseInt(p.ram) : null,
-            loader: p.modloader || 'vanilla',
-            jvmArgs: p.jvmFlags || [],
-            optimize: true
-        }
-
-        // Lanzar Minecraft usando las funciones IPC del proceso principal
-        const success = await ipcRenderer.invoke('launch-minecraft', p.version, p.username, options)
-        
-        if (!success) {
-            await showModal({
-                title: 'Error al lanzar Minecraft',
-                html: `
-                    No se pudo lanzar Minecraft.<br>
-                    Verifica que la versión esté instalada y que Java esté disponible.
-                `,
-                buttons: [{ label: 'OK', value: null }]
-            })
-        }
-        
-        // Rehabilitar el botón después del lanzamiento
-        launchBtn.disabled = false
-        launchBtn.textContent = '🚀 ¡JUGAR!'
-        
-    } catch (error) {
-        // Rehabilitar el botón en caso de error
-        const launchBtn = $('#btn-launch')
-        launchBtn.disabled = false
-        launchBtn.textContent = '🚀 ¡JUGAR!'
-        
-        await showModal({
-            title: 'Error al lanzar Minecraft',
-            html: `
-                Error: <code>${error.message}</code><br><br>
-                Verifica la configuración del perfil y que todas las dependencias estén instaladas.
-            `,
-            buttons: [{ label: 'OK', value: null }]
-        })
+  const settings = getSettings()
+  
+  try {
+    addLogEntry('Iniciando Minecraft...', 'info')
+    showLogs() // Cambiar a la pestaña de logs
+    
+    const result = await ipcRenderer.invoke('launch-minecraft', {
+      profile: active,
+      ram: settings.ram || '2',
+      resolution: settings.resolution || '1280x720'
+    })
+    
+    if (result.success) {
+      addLogEntry('Minecraft iniciado correctamente', 'success')
+    } else {
+      addLogEntry(`Error al iniciar Minecraft: ${result.error}`, 'error')
     }
+  } catch (error) {
+    addLogEntry(`Error inesperado: ${error.message}`, 'error')
+  }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
+// Event listeners
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!(await ensureNodeBackend())) return
+
+  profiles = loadProfiles()
+  renderProfileList()
+  renderParticles()
+  updateProfileStatus()
+  loadSettings()
+
+  // Event listeners para pestañas principales
+  document.querySelectorAll('.main-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabName = btn.dataset.tab
+      switchMainTab(tabName)
+    })
+  })
+
+  // Event listeners para pestañas secundarias
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tabName = btn.dataset.tab
+      switchTab(tabName)
+    })
+  })
+
+  // Event listeners para configuración
+  document.querySelectorAll('#ram-selector, #resolution-selector, #theme-selector, #animations-toggle, #auto-update-toggle, #auto-logs-toggle').forEach(element => {
+    element.addEventListener('change', saveSettings)
+  })
+
+  // Event listeners existentes
+  $('#btn-launch').onclick = launch
+  $('#btn-new-profile').onclick = () => ipcRenderer.send('open-profile-editor')
+  $('#btn-edit-profile').onclick = () => {
+    if (active) ipcRenderer.send('open-profile-editor', active)
+  }
+  $('#btn-clear-logs').onclick = clearLogs
+  $('#minimize-btn').onclick = () => ipcRenderer.send('minimize-window')
+  $('#maximize-btn').onclick = () => {
+    ipcRenderer.send('maximize-window')
+    // Actualizar el icono después de un breve delay
+    setTimeout(updateMaximizeIcon, 100)
+  }
+  $('#close-btn').onclick = () => ipcRenderer.send('close-window')
+  
+  // Función para actualizar el icono de maximizar
+  async function updateMaximizeIcon() {
+    try {
+      const isMaximized = await ipcRenderer.invoke('is-maximized')
+      const maximizeBtn = $('#maximize-btn')
+      if (isMaximized) {
+        maximizeBtn.textContent = '❐'
+        maximizeBtn.title = 'Restaurar'
+      } else {
+        maximizeBtn.textContent = '□'
+        maximizeBtn.title = 'Maximizar'
+      }
+    } catch (error) {
+      console.error('Error actualizando icono de maximizar:', error)
+    }
+  }
+  
+  // Actualizar icono inicial
+  updateMaximizeIcon()
+  
+  // Nuevos event listeners para acciones rápidas
+  $('#btn-refresh').onclick = () => {
     profiles = loadProfiles()
     renderProfileList()
-    renderParticles()
-
-    $('#btn-new-profile').onclick = () => ipcRenderer.send('open-editor', null)
-    $('#btn-edit-profile').onclick = () => ipcRenderer.send('open-editor', active)
-    $('#btn-launch').onclick = launch
-    $('#btn-clear-logs').onclick = clearLogs
-
-    $('#minimize-btn').onclick = () => ipcRenderer.send('window-minimize');
-    $('#close-btn').onclick = () => ipcRenderer.send('close-launcher');
-
-    // Event listeners para pestañas
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tabName = btn.getAttribute('data-tab')
-            switchTab(tabName)
-        })
+    updateProfileStatus()
+    addLogEntry('Perfiles actualizados', 'info')
+  }
+  
+  $('#btn-folder').onclick = () => {
+    if (fs.existsSync(versionsDir)) shell.openPath(versionsDir)
+    else alert('Aún no se ha iniciado ninguna versión de Minecraft')
+  }
+  
+  $('#btn-help').onclick = async () => {
+    await showModal({
+      title: 'Ayuda',
+      html: `
+        <h4>🎮 Cómo usar HaporeLauncher</h4>
+        <p><strong>1. Perfiles:</strong> Crea y gestiona tus perfiles de Minecraft</p>
+        <p><strong>2. Noticias:</strong> Mantente al día con las últimas actualizaciones</p>
+        <p><strong>3. Logs:</strong> Monitorea el progreso y estado del launcher</p>
+        <p><strong>4. Configuración:</strong> Personaliza tu experiencia de juego</p>
+        <br>
+        <p>Para más ayuda, visita nuestra documentación.</p>
+      `,
+      buttons: [{ label: 'Entendido', value: null }]
     })
+  }
 
-    // Escuchar logs del main process
-    ipcRenderer.on('launcher-log', (event, data) => {
-        addLogEntry(data.message, data.type || 'info', data.timestamp)
-    })
+  // IPC listeners
+  ipcRenderer.on('profiles-updated', () => {
+    profiles = loadProfiles()
+    renderProfileList()
+    updateProfileStatus()
+  })
 
-    // Escuchar logs de assets
-    ipcRenderer.on('asset-progress', (event, data) => {
-        updateAssetProgress(data.current, data.total, data.percentage)
-        addAssetLogEntry(`📦 Progreso: ${data.current}/${data.total} (${data.percentage}%)`, data.timestamp)
-    })
+  ipcRenderer.on('add-log', (event, { message, type, timestamp }) => {
+    addLogEntry(message, type, timestamp)
+  })
 
-    // Escuchar cuando Minecraft se cierre
-    ipcRenderer.on('minecraft-closed', () => {
-        const launchBtn = $('#btn-launch')
-        launchBtn.disabled = false
-        launchBtn.textContent = '🚀 ¡JUGAR!'
-        addLogEntry('🎮 Minecraft se ha cerrado', 'info')
-    })
+  ipcRenderer.on('add-asset-log', (event, { message, timestamp }) => {
+    addAssetLogEntry(message, timestamp)
+  })
 
-    ipcRenderer.on('profile-saved', (_e, name) => {
-        profiles = loadProfiles()
-        active = name
-        renderProfileList()
-    })
-    ipcRenderer.on('profile-deleted', (_e, name) => {
-        profiles = loadProfiles()
-        if (active === name) active = null
-        renderProfileList()
-    })
+  ipcRenderer.on('update-asset-progress', (event, { current, total, percentage }) => {
+    updateAssetProgress(current, total, percentage)
+  })
+
+  ipcRenderer.on('show-logs', () => {
+    showLogs()
+  })
+  
+  // Event listener para cambios de estado de la ventana
+  ipcRenderer.on('window-state-changed', (event, { isMaximized }) => {
+    const maximizeBtn = $('#maximize-btn')
+    if (isMaximized) {
+      maximizeBtn.textContent = '❐'
+      maximizeBtn.title = 'Restaurar'
+    } else {
+      maximizeBtn.textContent = '□'
+      maximizeBtn.title = 'Maximizar'
+    }
+  })
 })

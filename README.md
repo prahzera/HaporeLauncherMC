@@ -1,163 +1,150 @@
-# HaporeLauncher
+# 🎮 HaporeLauncher
 
-> *Minecraft No‑Premium desktop launcher construido completamente con Electron + Node.js*
+Un launcher moderno y elegante para Minecraft con una interfaz de usuario mejorada y organizada por pestañas.
 
----
+## ✨ Características Principales
 
-## Índice
+### 🎯 **Nueva Interfaz con Pestañas**
+- **Pestaña Perfiles**: Gestión completa de perfiles de Minecraft
+- **Pestaña Noticias**: Mantente al día con las últimas actualizaciones
+- **Pestaña Logs**: Monitoreo en tiempo real del progreso del launcher
+- **Pestaña Configuración**: Personalización completa de la experiencia
 
-1. [Descripción](#descripción)
-2. [Características](#características)
-3. [Requisitos](#requisitos)
-4. [Instalación](#instalación)
-5. [Uso](#uso)
-6. [Empaquetado y distribución](#empaquetado-y-distribución)
-7. [Estructura del proyecto](#estructura-del-proyecto)
-8. [Contribuir](#contribuir)
-9. [Licencia](#licencia)
+### 🎨 **Diseño Moderno y Dinámico**
+- Interfaz con efecto glassmorphism y blur
+- Animaciones suaves y fluidas
+- Transiciones dinámicas entre pestañas
+- Efectos visuales atractivos (partículas, brillos, etc.)
 
----
+### 🚀 **Experiencia de Usuario Mejorada**
+- Navegación intuitiva con pestañas principales
+- Información contextual en tiempo real
+- Acciones rápidas accesibles
+- Estado del perfil visible en todo momento
 
-## Descripción
+### ⚙️ **Configuración Avanzada**
+- Selector de memoria RAM (1GB - 8GB)
+- Configuración de resolución
+- Temas personalizables (Oscuro/Claro/Automático)
+- Opciones de animaciones
+- Auto-actualización y logs automáticos
 
-**HaporeLauncher** es un lanzador no‑premium para Minecraft escrito completamente en JavaScript (Electron + Node.js).
-Toda la lógica del launcher, incluyendo la descarga de versiones, instalación de mod‑loaders, gestión de Java y lanzamiento del juego, se ejecuta directamente en el proceso principal de Electron.
+## 🎮 Funcionalidades
 
-Diseñado para ser **multiplataforma** (Windows, macOS y Linux), **independiente** y fácil de clonar, ejecutar y empaquetar.
+### Gestión de Perfiles
+- Crear y editar perfiles de Minecraft
+- Selección rápida de perfiles
+- Acceso directo a carpetas de instancias
+- Eliminación segura de perfiles
 
-### ✨ Características de diseño
+### Monitoreo en Tiempo Real
+- Logs detallados del proceso de lanzamiento
+- Progreso de descarga de assets
+- Estado del sistema y errores
+- Notificaciones automáticas
 
-- 🎨 **Interfaz moderna** con efectos glassmorphism
-- 🌈 **Paleta de colores mejorada** con gradientes atractivos
-- ⚡ **Animaciones fluidas** y efectos visuales
-- 📱 **Diseño responsive** para diferentes tamaños de pantalla
-- 🎮 **Iconografía mejorada** con emojis y elementos visuales
-- 🔧 **UX optimizada** con mejor feedback visual
+### Personalización
+- Configuración de rendimiento
+- Opciones de apariencia
+- Preferencias de comportamiento
+- Configuración avanzada
 
-## Características
+## 🛠️ Instalación
 
-* Descarga automática de cualquier versión oficial de Minecraft.
-* **Obtención automática de versiones** desde la API de Mojang.
-* Soporte opcional para **Forge**, **Fabric** y **Vanilla**.
-* Ejecución *offline* con UUID determinista por nombre de usuario.
-* Persiste el último perfil usado en `~/.haporelauncher/profiles.json`.
-* Interfaz moderna con efectos visuales atractivos.
-* Gestión de perfiles intuitiva y visual.
-* **Arquitectura simplificada** - toda la lógica en un solo proceso.
-* **Completamente independiente** - no requiere Python ni dependencias externas.
+1. **Clonar el repositorio**
+   ```bash
+   git clone https://github.com/tu-usuario/haporelauncher.git
+   cd haporelauncher
+   ```
 
-## Requisitos
+2. **Instalar dependencias**
+   ```bash
+   npm install
+   ```
 
-| Herramienta | Versión recomendada | Comentario                     |
-| ----------- | ------------------- | ------------------------------ |
-| **Node.js** | ≥ 18.x              | Probado con Electron 37        |
-| **npm**     | Pareada con tu Node | —                              |
-| **Git**     | Cualquiera          | Para clonar el repo            |
+3. **Ejecutar el launcher**
+   ```bash
+   npm start
+   ```
 
-### Dependencias Node.js (incluidas en `package.json`)
-
-```json
-{
-  "minecraft-launcher-core": "^3.18.2",
-  "axios": "^1.6.0",
-  "adm-zip": "^0.5.10",
-  "node-fetch": "^2.7.0",
-  "uuid": "^9.0.1"
-}
-```
-
-> Todas las dependencias se instalan automáticamente con `npm install`.
-
-## Instalación
-
-```bash
-# 1. Clonar el repositorio
-$ git clone https://github.com/tu_usuario/hapore-launcher.git
-$ cd hapore-launcher
-
-# 2. Instalar dependencias Node
-$ npm install
-```
-
-## Uso
-
-### Desarrollo (ventana de depuración abierta)
-
-```bash
-$ npm run start
-```
-
-La ventana mostrará la GUI moderna y, al pulsar **🚀 ¡JUGAR!**, ejecutará Minecraft directamente desde el proceso principal.
-
-### Funcionalidades integradas
-
-- **Gestión de perfiles**: Crear, editar y eliminar perfiles de Minecraft
-- **Selector de versiones**: Lista automática de versiones disponibles
-- **Configuración de memoria**: Ajustar RAM asignada al juego
-- **Modloaders**: Soporte para Forge, Fabric y Vanilla
-- **Argumentos JVM**: Configuración avanzada de Java
-- **Descarga automática**: Java y versiones se descargan automáticamente
-
-## Empaquetado y distribución
-
-El empaquetado se realiza con **electron‑builder**.
-
-```bash
-$ npm run build
-```
-
-Por defecto generará instaladores en `dist/`:
-
-* **Windows** → `HaporeLauncher Setup x.x.x.exe` (NSIS)
-* **macOS**  → `HaporeLauncher.dmg` (PROXIMAMENTE)
-* **Linux**  → `HaporeLauncher.AppImage` (PROXIMAMENTE)
-
-### Configuración de empaquetado
-
-El archivo `package.json` incluye la configuración completa para electron‑builder:
-
-```json
-{
-  "build": {
-    "appId": "com.haporelauncher.app",
-    "productName": "HaporeLauncher",
-    "win": {
-      "target": "nsis",
-      "icon": "src/icon.ico"
-    }
-  }
-}
-```
-
-## Estructura del proyecto
+## 📁 Estructura del Proyecto
 
 ```
-HaporeLauncher/
-├── main.js                 # Proceso principal con toda la lógica del launcher
-├── package.json            # Configuración del proyecto y dependencias
+GW-Launcher/
 ├── src/
-│   ├── index.html          # Interfaz principal
-│   ├── styles.css          # Estilos modernos con glassmorphism
-│   ├── animations.css      # Animaciones y efectos visuales
-│   ├── renderer.js         # Lógica del renderer (comunicación IPC)
-│   ├── config.js           # Configuración centralizada
-│   ├── icon.ico            # Icono de la aplicación
-│   └── editor/
-│       ├── profile-editor.html  # Editor de perfiles
-│       └── editor.js            # Lógica del editor
-├── assets/                 # Recursos gráficos
-├── README.md               # Este archivo
-└── CHANGELOG.md            # Registro de cambios
+│   ├── index.html          # Interfaz principal con pestañas
+│   ├── styles.css          # Estilos modernos y responsivos
+│   ├── animations.css      # Animaciones dinámicas
+│   ├── renderer.js         # Lógica de la interfaz
+│   └── backend/            # Lógica del servidor
+├── assets/                 # Recursos visuales
+└── package.json           # Configuración del proyecto
 ```
 
-### Arquitectura simplificada
+## 🎨 Características de Diseño
 
-- **Proceso principal** (`main.js`): Contiene toda la lógica del launcher
-- **Proceso de renderer** (`renderer.js`): Maneja la interfaz y comunicación IPC
-- **Comunicación IPC**: Intercambio de datos entre procesos de forma eficiente
-- **Sin backend separado**: Toda la funcionalidad integrada en Electron
+### Sistema de Pestañas
+- **Navegación fluida**: Transiciones suaves entre secciones
+- **Organización clara**: Contenido separado por funcionalidad
+- **Acceso rápido**: Información importante siempre visible
 
-## Contribuir
+### Efectos Visuales
+- **Glassmorphism**: Efecto de cristal esmerilado
+- **Partículas animadas**: Elementos flotantes dinámicos
+- **Gradientes**: Colores vibrantes y modernos
+- **Sombras**: Profundidad y dimensión visual
+
+### Responsividad
+- **Adaptable**: Funciona en diferentes tamaños de pantalla
+- **Touch-friendly**: Optimizado para dispositivos táctiles
+- **Accesible**: Diseño inclusivo y fácil de usar
+
+## 🔧 Configuración
+
+### Opciones de Rendimiento
+- **Memoria RAM**: 1GB - 8GB configurable
+- **Resolución**: Múltiples opciones predefinidas
+- **Optimizaciones**: Configuración automática de JVM
+
+### Personalización
+- **Temas**: Oscuro, Claro, Automático
+- **Animaciones**: Habilitar/deshabilitar efectos
+- **Auto-actualización**: Mantener el launcher actualizado
+- **Logs automáticos**: Mostrar información de progreso
+
+## 🚀 Uso
+
+1. **Seleccionar Perfil**: Elige un perfil de la pestaña "Perfiles"
+2. **Configurar Opciones**: Ajusta la configuración en la pestaña "Configuración"
+3. **Lanzar Juego**: Haz clic en "¡JUGAR!" para iniciar Minecraft
+4. **Monitorear Progreso**: Revisa los logs en tiempo real
+
+## 🎯 Mejoras Implementadas
+
+### Interfaz de Usuario
+- ✅ Sistema de pestañas principal
+- ✅ Diseño glassmorphism moderno
+- ✅ Animaciones fluidas y atractivas
+- ✅ Información contextual dinámica
+- ✅ Navegación intuitiva
+
+### Funcionalidad
+- ✅ Gestión mejorada de perfiles
+- ✅ Configuración avanzada
+- ✅ Monitoreo en tiempo real
+- ✅ Acciones rápidas
+- ✅ Sistema de notificaciones
+
+### Experiencia de Usuario
+- ✅ Interfaz más cómoda y ordenada
+- ✅ Acceso rápido a funciones importantes
+- ✅ Información clara y visible
+- ✅ Transiciones suaves
+- ✅ Diseño responsivo
+
+## 🤝 Contribuir
+
+Las contribuciones son bienvenidas! Por favor:
 
 1. Fork el proyecto
 2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
@@ -165,17 +152,16 @@ HaporeLauncher/
 4. Push a la rama (`git push origin feature/AmazingFeature`)
 5. Abre un Pull Request
 
-### Guías de desarrollo
-
-- **Estilo de código**: Seguir las convenciones de JavaScript/Node.js
-- **Commits**: Usar mensajes descriptivos en español
-- **Testing**: Probar en Windows, macOS y Linux cuando sea posible
-- **Documentación**: Actualizar README y CHANGELOG para cambios importantes
-
-## Licencia
+## 📄 Licencia
 
 Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
 
+## 🙏 Agradecimientos
+
+- Comunidad de Minecraft por la inspiración
+- Electron por el framework de aplicaciones de escritorio
+- Todos los contribuidores que han ayudado a mejorar este launcher
+
 ---
 
-*¡Prepárate para la aventura con HaporeLauncher! 🎮✨*
+**¡Disfruta jugando Minecraft con HaporeLauncher! 🎮✨**

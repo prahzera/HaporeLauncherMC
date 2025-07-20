@@ -31,67 +31,204 @@
       <div class="titlebar-title">HaporeLauncher</div>
       <div class="window-controls">
         <button id="minimize-btn" class="window-btn minimize">─</button>
+        <button id="maximize-btn" class="window-btn maximize">□</button>
         <button id="close-btn" class="window-btn close">✕</button>
       </div>
     </div>
     <div class="particle-container"></div>
+    
+    <!-- Sidebar mejorado con pestañas -->
     <aside class="sidebar">
       <div class="sidebar-header">
-        <h2 class="sidebar__title">Perfiles</h2>
+        <h2 class="sidebar__title">HaporeLauncher</h2>
         <div class="sidebar-logo">🎮</div>
       </div>
-      <ul id="profile-list" class="sidebar__list"></ul>
-      <button id="btn-new-profile" class="sidebar__new">＋ Crear perfil</button>
-      <button id="btn-edit-profile" class="sidebar__edit" disabled>✎ Editar perfil</button>
+      
+      <!-- Pestañas principales -->
+      <div class="main-tabs">
+        <button class="main-tab-btn active" data-tab="profiles">
+          <span class="tab-icon">👤</span>
+          <span class="tab-label">Perfiles</span>
+        </button>
+        <button class="main-tab-btn" data-tab="news">
+          <span class="tab-icon">📰</span>
+          <span class="tab-label">Noticias</span>
+        </button>
+        <button class="main-tab-btn" data-tab="logs">
+          <span class="tab-icon">📋</span>
+          <span class="tab-label">Logs</span>
+        </button>
+        <button class="main-tab-btn" data-tab="settings">
+          <span class="tab-icon">⚙️</span>
+          <span class="tab-label">Configuración</span>
+        </button>
+      </div>
+      
+      <!-- Contenido de pestañas -->
+      <div class="tab-content-wrapper">
+        <!-- Pestaña Perfiles -->
+        <div id="tab-profiles-content" class="main-tab-content active">
+          <div class="profiles-section">
+            <h3 class="section-title">Mis Perfiles</h3>
+            <ul id="profile-list" class="sidebar__list"></ul>
+            <div class="profile-actions">
+              <button id="btn-new-profile" class="sidebar__new">＋ Crear perfil</button>
+              <button id="btn-edit-profile" class="sidebar__edit" disabled>✎ Editar perfil</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Pestaña Noticias -->
+        <div id="tab-news-content" class="main-tab-content">
+          <div class="news-section">
+            <h3 class="section-title">📰 Noticias de Minecraft</h3>
+            <div id="news-content" class="news-content">
+              <p class="news__placeholder">
+                ℹ️ Aquí aparecerán las noticias y changelogs de Minecraft…
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Pestaña Logs -->
+        <div id="tab-logs-content" class="main-tab-content">
+          <div class="logs-section">
+            <div class="logs-header">
+              <h3 class="section-title">📋 Logs del Launcher</h3>
+              <div class="logs-tabs">
+                <button id="tab-general" class="tab-btn active" data-tab="general">📊 General</button>
+                <button id="tab-assets" class="tab-btn" data-tab="assets">📦 Assets</button>
+              </div>
+              <button id="btn-clear-logs" class="logs-clear">🗑️ Limpiar</button>
+            </div>
+            
+            <div id="tab-general-content" class="tab-content active">
+              <div id="logs-content" class="logs-content">
+                <p class="logs__placeholder">
+                  ℹ️ Los logs generales aparecerán aquí cuando lances Minecraft…
+                </p>
+              </div>
+            </div>
+            
+            <div id="tab-assets-content" class="tab-content">
+              <div class="assets-progress">
+                <div class="progress-bar">
+                  <div id="assets-progress-fill" class="progress-fill"></div>
+                </div>
+                <div id="assets-progress-text" class="progress-text">0% (0/0)</div>
+              </div>
+              <div id="assets-content" class="logs-content">
+                <p class="logs__placeholder">
+                  ℹ️ El progreso de assets aparecerá aquí…
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Pestaña Configuración -->
+        <div id="tab-settings-content" class="main-tab-content">
+          <div class="settings-section">
+            <h3 class="section-title">⚙️ Configuración</h3>
+            <div class="settings-content">
+              <div class="setting-group">
+                <h4>🎮 Configuración del Juego</h4>
+                <div class="setting-item">
+                  <label>Memoria RAM:</label>
+                  <select id="ram-selector">
+                    <option value="1">1 GB</option>
+                    <option value="2" selected>2 GB</option>
+                    <option value="4">4 GB</option>
+                    <option value="6">6 GB</option>
+                    <option value="8">8 GB</option>
+                  </select>
+                </div>
+                <div class="setting-item">
+                  <label>Resolución:</label>
+                  <select id="resolution-selector">
+                    <option value="854x480">854x480</option>
+                    <option value="1280x720" selected>1280x720</option>
+                    <option value="1920x1080">1920x1080</option>
+                    <option value="2560x1440">2560x1440</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="setting-group">
+                <h4>🎨 Apariencia</h4>
+                <div class="setting-item">
+                  <label>Tema:</label>
+                  <select id="theme-selector">
+                    <option value="dark" selected>Oscuro</option>
+                    <option value="light">Claro</option>
+                    <option value="auto">Automático</option>
+                  </select>
+                </div>
+                <div class="setting-item">
+                  <label>Animaciones:</label>
+                  <input type="checkbox" id="animations-toggle" checked>
+                </div>
+              </div>
+              
+              <div class="setting-group">
+                <h4>🔧 Avanzado</h4>
+                <div class="setting-item">
+                  <label>Auto-actualizar:</label>
+                  <input type="checkbox" id="auto-update-toggle" checked>
+                </div>
+                <div class="setting-item">
+                  <label>Mostrar logs automáticamente:</label>
+                  <input type="checkbox" id="auto-logs-toggle">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </aside>
+    
+    <!-- Contenido principal -->
     <main class="content">
       <header class="headline">
         <h1 id="profile-headline">Selecciona un perfil</h1>
         <p class="headline-subtitle">¡Prepárate para la aventura!</p>
       </header>
-      <section id="news" class="news">
-        <div class="news-header">
-          <h3>📰 Noticias</h3>
-        </div>
-        <p class="news__placeholder">
-          ℹ️ Aquí aparecerán las noticias y changelogs de Minecraft…
-        </p>
-      </section>
       
-      <section id="logs" class="logs hidden">
-        <div class="logs-header">
-          <h3>📋 Logs del Launcher</h3>
-          <div class="logs-tabs">
-            <button id="tab-general" class="tab-btn active" data-tab="general">📊 General</button>
-            <button id="tab-assets" class="tab-btn" data-tab="assets">📦 Assets</button>
-          </div>
-          <button id="btn-clear-logs" class="logs-clear">🗑️ Limpiar</button>
-        </div>
-        
-        <div id="tab-general-content" class="tab-content active">
-          <div id="logs-content" class="logs-content">
-            <p class="logs__placeholder">
-              ℹ️ Los logs generales aparecerán aquí cuando lances Minecraft…
-            </p>
+      <!-- Área de información dinámica -->
+      <div class="info-area">
+        <div class="info-card">
+          <div class="info-icon">🎯</div>
+          <div class="info-content">
+            <h3>Estado del Perfil</h3>
+            <p id="profile-status">No hay perfil seleccionado</p>
           </div>
         </div>
         
-        <div id="tab-assets-content" class="tab-content">
-          <div class="assets-progress">
-            <div class="progress-bar">
-              <div id="assets-progress-fill" class="progress-fill"></div>
-            </div>
-            <div id="assets-progress-text" class="progress-text">0% (0/0)</div>
-          </div>
-          <div id="assets-content" class="logs-content">
-            <p class="logs__placeholder">
-              ℹ️ El progreso de assets aparecerá aquí…
-            </p>
+        <div class="info-card">
+          <div class="info-icon">📊</div>
+          <div class="info-content">
+            <h3>Estadísticas</h3>
+            <p id="profile-stats">Perfiles: 0 | Tiempo jugado: 0h</p>
           </div>
         </div>
-      </section>
+      </div>
       
-      <button id="btn-launch" class="launch" disabled>🚀 ¡JUGAR!</button>
+      <!-- Área de acción principal -->
+      <div class="action-area">
+        <button id="btn-launch" class="launch" disabled>🚀 ¡JUGAR!</button>
+        
+        <div class="quick-actions">
+          <button id="btn-refresh" class="quick-btn" title="Actualizar">
+            🔄
+          </button>
+          <button id="btn-folder" class="quick-btn" title="Abrir carpeta">
+            📁
+          </button>
+          <button id="btn-help" class="quick-btn" title="Ayuda">
+            ❓
+          </button>
+        </div>
+      </div>
     </main>
   </div>
   <script src="renderer.js"></script>

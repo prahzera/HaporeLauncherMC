@@ -48,6 +48,19 @@ function createWindow() {
     mainWindow.on('closed', () => {
         mainWindow = null
     })
+    
+    // Event listeners para cambios de estado de la ventana
+    mainWindow.on('maximize', () => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('window-state-changed', { isMaximized: true })
+        }
+    })
+    
+    mainWindow.on('unmaximize', () => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('window-state-changed', { isMaximized: false })
+        }
+    })
 }
 
 // Asegurar que los directorios existan
@@ -1037,6 +1050,37 @@ ipcMain.on('open-delete-confirm', (event, profileName) => {
             }
     }
   })
+})
+
+// Handlers para controles de ventana
+ipcMain.on('minimize-window', () => {
+    if (mainWindow) {
+        mainWindow.minimize()
+    }
+})
+
+ipcMain.on('maximize-window', () => {
+    if (mainWindow) {
+        if (mainWindow.isMaximized()) {
+            mainWindow.unmaximize()
+        } else {
+            mainWindow.maximize()
+        }
+    }
+})
+
+ipcMain.on('close-window', () => {
+    if (mainWindow) {
+        mainWindow.close()
+    }
+})
+
+// Handler para obtener el estado de maximización
+ipcMain.handle('is-maximized', () => {
+    if (mainWindow) {
+        return mainWindow.isMaximized()
+    }
+    return false
 })
 
 app.whenReady().then(createWindow)
