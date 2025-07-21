@@ -144,6 +144,48 @@
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
 
+        /* Mod Loader Indicators */
+        .field-wrapper.fabric-selected {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .field-wrapper.fabric-selected::after {
+            content: '🔧 Se instalará automáticamente';
+            position: absolute;
+            top: -25px;
+            right: 0;
+            font-size: 11px;
+            color: #8b5cf6;
+            font-weight: 500;
+            background: rgba(139, 92, 246, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .field-wrapper.forge-selected {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+
+        .field-wrapper.forge-selected::after {
+            content: '⚠️ Instalación manual requerida';
+            position: absolute;
+            top: -25px;
+            right: 0;
+            font-size: 11px;
+            color: #f59e0b;
+            font-weight: 500;
+            background: rgba(245, 158, 11, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .field-wrapper.vanilla-selected {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
         .field-icon {
             position: absolute;
             left: 15px;
@@ -186,10 +228,75 @@
             background-size: 16px;
         }
 
+        /* Estilos para elementos option en el editor */
+        .field-select option {
+            background-color: #1a1a2e;
+            color: #ffffff;
+            padding: 8px 12px;
+        }
+
+        .field-select option:hover {
+            background-color: #6366f1;
+            color: white;
+        }
+
+        .field-select option:checked {
+            background-color: #6366f1;
+            color: white;
+        }
+
+        /* Estilos generales para todos los selectores en el editor */
+        select option {
+            background-color: #1a1a2e;
+            color: #ffffff;
+            padding: 8px 12px;
+        }
+
+        select option:hover {
+            background-color: #6366f1;
+            color: white;
+        }
+
+        select option:checked {
+            background-color: #6366f1;
+            color: white;
+        }
+
         .field-textarea {
             resize: vertical;
             min-height: 80px;
             line-height: 1.5;
+        }
+        
+        /* Estilos para la sección de información */
+        .info-wrapper {
+            padding: 15px;
+        }
+        
+        .info-text {
+            color: #ffffff;
+            font-size: 14px;
+            line-height: 1.6;
+            padding-left: 30px;
+        }
+        
+        .info-text code {
+            display: block;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            padding: 10px;
+            margin: 8px 0;
+            font-family: 'Consolas', monospace;
+            color: #10b981;
+            word-break: break-all;
+            border: 1px dashed rgba(16, 185, 129, 0.3);
+        }
+        
+        .info-note {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 8px;
+            font-style: italic;
         }
 
         /* Buttons */
@@ -375,14 +482,14 @@
 
             <!-- Mod Loader -->
             <div class="field-group">
-                <label class="field-label">Mod Loader</label>
-                <div class="field-wrapper">
-                    <i class="bi bi-plug-fill field-icon"></i>
-                    <select id="modloader" class="field-select">
-                        <option value="vanilla">Vanilla (Sin mods)</option>
-                        <option value="forge">Forge</option>
-                        <option value="fabric">Fabric</option>
-                    </select>
+                <label class="field-label">Información de Instalación</label>
+                <div class="field-wrapper info-wrapper">
+                    <i class="bi bi-info-circle-fill field-icon"></i>
+                    <div class="info-text">
+                        El juego se instalará en:<br>
+                        <code id="install-path">C:\Users\[usuario]\.haporelauncher\instances\[perfil]</code>
+                        <p class="info-note">Puedes instalar modloaders manualmente en esta ubicación.</p>
+                    </div>
                 </div>
             </div>
 
@@ -391,7 +498,7 @@
                 <label class="field-label">Memoria RAM (MB)</label>
                 <div class="field-wrapper">
                     <i class="bi bi-memory field-icon"></i>
-                    <input id="ram" class="field-input" type="number" placeholder="Ej: 4096" min="1024" max="32768">
+                    <input id="ram" class="field-input" type="number" placeholder="2048 (por defecto)" min="1024" max="32768">
                 </div>
             </div>
 

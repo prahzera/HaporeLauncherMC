@@ -482,165 +482,6 @@ async function downloadLibraries(libraries, versionPath) {
     }
 }
 
-// Instalar modloader
-async function installModloader(loader, version) {
-    if (!loader || loader === 'vanilla') {
-        return version
-    }
-
-    ensureDirectories()
-    
-    try {
-        console.log(`Instalando ${loader} para ${version}...`)
-        
-        if (loader === 'forge') {
-            // Buscar versión de Forge compatible
-            const forgeVersions = await getForgeVersions(version)
-            if (forgeVersions.length > 0) {
-                const forgeVersion = forgeVersions[0]
-                await installForge(version, forgeVersion)
-                return `${version}-forge-${forgeVersion}`
-            }
-        } else if (loader === 'fabric') {
-            await installFabric(version)
-            return `${version}-fabric`
-        }
-        
-        return version
-    } catch (error) {
-        console.error(`Error instalando ${loader}:`, error.message)
-        return version
-    }
-}
-
-// Obtener versiones de Forge
-async function getForgeVersions(minecraftVersion) {
-    try {
-        const response = await axios.get(`https://files.minecraftforge.net/maven/net/minecraftforge/forge/meta.json`)
-        const versions = response.data.versions
-        
-        return versions
-            .filter(v => v.mcversion === minecraftVersion)
-            .map(v => v.version)
-            .sort((a, b) => {
-                const aParts = a.split('.').map(Number)
-                const bParts = b.split('.').map(Number)
-                
-                for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
-                    const aPart = aParts[i] || 0
-                    const bPart = bParts[i] || 0
-                    if (aPart !== bPart) {
-                        return bPart - aPart
-                    }
-                }
-                return 0
-            })
-    } catch (error) {
-        console.error('Error obteniendo versiones de Forge:', error.message)
-        return []
-    }
-}
-
-// Instalar Forge
-async function installForge(minecraftVersion, forgeVersion) {
-    const url = `https://files.minecraftforge.net/maven/net/minecraftforge/forge/${minecraftVersion}-${forgeVersion}/forge-${minecraftVersion}-${forgeVersion}-installer.jar`
-    
-    try {
-        const response = await fetch(url)
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-        }
-
-        const installerPath = path.join(VERSIONS_DIR, `forge-${minecraftVersion}-${forgeVersion}-installer.jar`)
-        const fileStream = fs.createWriteStream(installerPath)
-        
-        await new Promise((resolve, reject) => {
-            response.body.pipe(fileStream)
-            response.body.on('error', reject)
-            fileStream.on('finish', resolve)
-        })
-
-        // Ejecutar instalador
-        const javaPath = await downloadJavaRuntime(getRequiredJavaVersion(minecraftVersion))
-        
-        return new Promise((resolve, reject) => {
-            const process = spawn(javaPath, ['-jar', installerPath, '--installClient'], {
-                cwd: VERSIONS_DIR,
-                stdio: 'inherit'
-            })
-
-            process.on('close', (code) => {
-                if (code === 0) {
-                    resolve()
-                } else {
-                    reject(new Error(`Instalador de Forge falló con código ${code}`))
-                }
-            })
-
-            process.on('error', reject)
-        })
-    } catch (error) {
-        console.error('Error instalando Forge:', error.message)
-        throw error
-    }
-}
-
-// Instalar Fabric
-async function installFabric(minecraftVersion) {
-    try {
-        const response = await axios.get(`https://meta.fabricmc.net/v2/versions/loader/${minecraftVersion}`)
-        const loaders = response.data
-        
-        if (loaders.length === 0) {
-            throw new Error(`No hay loaders de Fabric disponibles para ${minecraftVersion}`)
-        }
-
-        const loader = loaders[0]
-        const installerUrl = `https://maven.fabricmc.net/net/fabricmc/fabric-installer/${loader.loader.version}/fabric-installer-${loader.loader.version}.jar`
-        
-        const installerResponse = await fetch(installerUrl)
-        if (!installerResponse.ok) {
-            throw new Error(`HTTP ${installerResponse.status}: ${installerResponse.statusText}`)
-        }
-
-        const installerPath = path.join(VERSIONS_DIR, `fabric-installer-${loader.loader.version}.jar`)
-        const fileStream = fs.createWriteStream(installerPath)
-        
-        await new Promise((resolve, reject) => {
-            installerResponse.body.pipe(fileStream)
-            installerResponse.body.on('error', reject)
-            fileStream.on('finish', resolve)
-        })
-
-        // Ejecutar instalador de Fabric
-        const javaPath = await downloadJavaRuntime(getRequiredJavaVersion(minecraftVersion))
-        
-        return new Promise((resolve, reject) => {
-            const process = spawn(javaPath, [
-                '-jar', installerPath,
-                'client',
-                '-mcversion', minecraftVersion,
-                '-dir', VERSIONS_DIR
-            ], {
-                stdio: 'inherit'
-            })
-
-            process.on('close', (code) => {
-                if (code === 0) {
-                    resolve()
-                } else {
-                    reject(new Error(`Instalador de Fabric falló con código ${code}`))
-                }
-            })
-
-            process.on('error', reject)
-        })
-    } catch (error) {
-        console.error('Error instalando Fabric:', error.message)
-        throw error
-    }
-}
-
 // Argumentos JVM optimizados
 function getOptimizedJvmArgs(javaVersion) {
     if (javaVersion >= 17) {
@@ -670,7 +511,6 @@ function getOptimizedJvmArgs(javaVersion) {
 async function launchMinecraft(version, username, options = {}) {
     const {
         ram,
-        loader = '',
         jvmArgs = [],
         optimize = false
     } = options
@@ -685,7 +525,6 @@ async function launchMinecraft(version, username, options = {}) {
         
         sendLog(`👤 Usuario: ${username}`)
         sendLog(`📦 Versión: ${version}`)
-        sendLog(`🔌 Modloader: ${loader || 'vanilla'}`)
         sendLog(`💾 RAM: ${ram || '2GB'} (máxima)`)
         
         // Instalar versión si es necesario
@@ -695,19 +534,8 @@ async function launchMinecraft(version, username, options = {}) {
             throw new Error(`No se pudo instalar la versión ${version}. Verifica tu conexión a internet.`)
         }
         
-        // Instalar modloader si es necesario
-        if (loader && loader !== 'vanilla') {
-            sendLog(`\n🔌 Instalando modloader ${loader}...`)
-            const realVersionId = await installModloader(loader, version)
-            sendLog(`✅ Modloader instalado: ${realVersionId}`)
-        } else {
-            sendLog(`\n✅ Usando versión vanilla`)
-        }
-        
-        const realVersionId = loader && loader !== 'vanilla' ? await installModloader(loader, version) : version
-        
         // Crear directorio del juego
-        const gameDir = path.join(INSTANCES_DIR, realVersionId)
+        const gameDir = path.join(INSTANCES_DIR, version)
         if (!fs.existsSync(gameDir)) {
             fs.mkdirSync(gameDir, { recursive: true })
         }
@@ -718,8 +546,8 @@ async function launchMinecraft(version, username, options = {}) {
         sendLog(`🆔 UUID generado: ${uuid}`)
         
         // Obtener Java
-        const javaVersion = getRequiredJavaVersion(realVersionId)
-        sendLog(`\n☕ Java requerido para ${realVersionId}: ${javaVersion}`)
+        const javaVersion = getRequiredJavaVersion(version)
+        sendLog(`\n☕ Java requerido para ${version}: ${javaVersion}`)
         
         const javaExecutable = await downloadJavaRuntime(javaVersion)
         sendLog(`✅ Java encontrado: ${javaExecutable}`)
@@ -727,17 +555,18 @@ async function launchMinecraft(version, username, options = {}) {
         // Argumentos JVM optimizados
         const optimizedArgs = optimize ? getOptimizedJvmArgs(javaVersion) : []
         
+        // Configurar memoria (asegurar que min <= max)
+        const maxRam = ram ? ram : 2048  // Usar 2048 MB (2GB) por defecto
+        const minRam = Math.min(maxRam / 2, 1024) // La mitad del máximo o 1GB, lo que sea menor
+        
         // Combinar argumentos
         const finalJvmArgs = [...optimizedArgs, ...jvmArgs]
-        if (ram) {
-            finalJvmArgs.push(`-Xmx${ram}M`)
-        }
-
+        
         // Configuración del cliente
         const client = new Client()
         
         // Verificar que el archivo JAR existe
-        const versionJarPath = path.join(VERSIONS_DIR, realVersionId, `${realVersionId}.jar`)
+        const versionJarPath = path.join(VERSIONS_DIR, version, `${version}.jar`)
         if (!fs.existsSync(versionJarPath)) {
             throw new Error(`Archivo JAR de Minecraft no encontrado: ${versionJarPath}`)
         }
@@ -750,12 +579,12 @@ async function launchMinecraft(version, username, options = {}) {
             authorization: Authenticator.getAuth(username),
             root: VERSIONS_DIR,
             version: {
-                number: realVersionId,
+                number: version,
                 type: "release"
             },
             memory: {
-                max: ram ? `${ram}M` : "2G",
-                min: "1G"
+                max: `${maxRam}M`,
+                min: `${minRam}M`
             },
             customLaunchArgs: finalJvmArgs,
             javaPath: javaExecutable,
@@ -945,7 +774,13 @@ ipcMain.handle('install-version', async (event, version) => {
 })
 
 ipcMain.handle('launch-minecraft', async (event, version, username, options) => {
-    return await launchMinecraft(version, username, options)
+    try {
+        const result = await launchMinecraft(version, username, options)
+        return { success: true, message: 'Minecraft iniciado correctamente' }
+    } catch (error) {
+        console.error('Error en launch-minecraft handler:', error)
+        return { success: false, error: error.message }
+    }
 })
 
 ipcMain.handle('download-java', async (event, javaVersion) => {
@@ -954,6 +789,10 @@ ipcMain.handle('download-java', async (event, javaVersion) => {
 
 ipcMain.handle('get-required-java-version', (event, minecraftVersion) => {
     return getRequiredJavaVersion(minecraftVersion)
+})
+
+ipcMain.handle('install-fabric', async (event, minecraftVersion) => {
+    return { success: false, error: 'La instalación automática de modloaders ha sido desactivada. Por favor, instala los modloaders manualmente.' }
 })
 
 ipcMain.handle('clear-version-cache', () => {
@@ -980,6 +819,37 @@ ipcMain.on('open-external', (event, url) => {
 
 // Handlers para el editor de perfiles
 ipcMain.on('open-editor', (event, profileName) => {
+    const editorWindow = new BrowserWindow({
+        width: 600,
+        height: 800,
+        minWidth: 500,
+        minHeight: 700,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false
+        },
+        icon: path.join(__dirname, 'src', 'icon.ico'),
+        titleBarStyle: 'hidden',
+        frame: false,
+        resizable: true,
+        modal: true,
+        parent: mainWindow,
+        backgroundColor: '#0a0a1a'
+    })
+
+    const url = profileName 
+        ? `file://${path.join(__dirname, 'src', 'editor', 'profile-editor.html')}?name=${encodeURIComponent(profileName)}`
+        : `file://${path.join(__dirname, 'src', 'editor', 'profile-editor.html')}`
+
+    editorWindow.loadURL(url)
+
+    editorWindow.on('closed', () => {
+        // El editor se cierra automáticamente
+    })
+})
+
+// Handler para el nuevo nombre del evento
+ipcMain.on('open-profile-editor', (event, profileName) => {
     const editorWindow = new BrowserWindow({
         width: 600,
         height: 800,

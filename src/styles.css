@@ -498,11 +498,23 @@ body {
   margin-right: auto;
 }
 
+.mods-btn {
+  width: 18px;
+  height: 18px;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-right: 8px;
+  filter: hue-rotate(200deg) brightness(1.2);
+}
+
 .delete-btn {
   margin-left: auto;
 }
 
 .sidebar__list li:hover .folder-btn,
+.sidebar__list li:hover .mods-btn,
 .sidebar__list li:hover .delete-btn {
   opacity: 1;
 }
@@ -510,6 +522,12 @@ body {
 .folder-btn:hover {
   transform: scale(1.1);
   opacity: 1;
+}
+
+.mods-btn:hover {
+  transform: scale(1.1);
+  opacity: 1;
+  filter: hue-rotate(200deg) brightness(1.4) drop-shadow(0 0 4px rgba(99, 102, 241, 0.6));
 }
 
 .delete-btn:hover {
@@ -834,6 +852,57 @@ body {
   accent-color: var(--primary);
 }
 
+/* Estilos para elementos option de selectores */
+.setting-item select option {
+  background-color: var(--bg-sidebar);
+  color: var(--fg);
+  padding: 8px 12px;
+}
+
+.setting-item select option:hover {
+  background-color: var(--primary);
+  color: white;
+}
+
+.setting-item select option:checked {
+  background-color: var(--primary);
+  color: white;
+}
+
+/* Estilos generales para todos los selectores */
+select option {
+  background-color: var(--bg-sidebar);
+  color: var(--fg);
+  padding: 8px 12px;
+}
+
+select option:hover {
+  background-color: var(--primary);
+  color: white;
+}
+
+select option:checked {
+  background-color: var(--primary);
+  color: white;
+}
+
+/* Estilos para selectores en el editor de perfiles */
+.field-select option {
+  background-color: var(--bg-sidebar);
+  color: var(--fg);
+  padding: 8px 12px;
+}
+
+.field-select option:hover {
+  background-color: var(--primary);
+  color: white;
+}
+
+.field-select option:checked {
+  background-color: var(--primary);
+  color: white;
+}
+
 /* ---------- Noticias mejoradas ---------- */
 .news-content {
   background: var(--bg-card);
@@ -855,7 +924,7 @@ body {
   background: var(--glass);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-sm);
-  padding: 1rem;
+    padding: 1rem;
   margin-bottom: 1rem;
   transition: all 0.3s ease;
 }
@@ -893,7 +962,7 @@ body {
 /* ---------- Logs mejorados ---------- */
 .logs-section {
   display: flex;
-  flex-direction: column;
+    flex-direction: column;
   gap: 1rem;
 }
 
@@ -1107,7 +1176,7 @@ body {
 }
 
 #modal-overlay.hidden { 
-  display: none;
+  display: none; 
 }
 
 #modal-box {

@@ -52,18 +52,18 @@ Un launcher moderno y elegante para Minecraft con una interfaz de usuario mejora
 ## 🛠️ Instalación
 
 1. **Clonar el repositorio**
-   ```bash
+```bash
    git clone https://github.com/tu-usuario/haporelauncher.git
    cd haporelauncher
    ```
 
 2. **Instalar dependencias**
-   ```bash
+```bash
    npm install
-   ```
+```
 
 3. **Ejecutar el launcher**
-   ```bash
+```bash
    npm start
    ```
 

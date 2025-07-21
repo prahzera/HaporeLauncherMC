@@ -54,6 +54,12 @@ function updateProfileStatus() {
         const profile = profiles[active]
         profileStatus.textContent = `Perfil activo: ${active}`
         profileHeadline.textContent = active
+        
+        // Mostrar información sobre la versión
+        const versionInfo = profile.version ? ` | Versión: ${profile.version}` : ''
+        
+        profileStatus.textContent = `Perfil activo: ${active}${versionInfo}`
+        profileHeadline.textContent = active
         launchBtn.disabled = false
         editBtn.disabled = false
         
@@ -303,10 +309,10 @@ function renderProfileList() {
         const folder = document.createElement('img')
         folder.src = '../assets/folder.webp'
         folder.classList.add('folder-btn')
+        folder.title = 'Abrir carpeta del juego'
         folder.onclick = e => {
             e.stopPropagation()
-            if (fs.existsSync(versionsDir)) shell.openPath(versionsDir)
-            else alert('Aún no se ha iniciado ninguna versión de Minecraft')
+            openGameFolder(name, data)
         }
         li.append(folder)
 
@@ -324,6 +330,27 @@ function renderProfileList() {
         li.append(del)
 
         ul.append(li)
+    }
+}
+
+// Función para abrir la carpeta del juego
+function openGameFolder(profileName, profileData) {
+    try {
+        // Usar la versión del perfil para crear la ruta correcta
+        const version = profileData.version || 'unknown'
+        const gameDir = path.join(os.homedir(), '.haporelauncher', 'instances', version)
+        
+        // Crear la carpeta si no existe
+        if (!fs.existsSync(gameDir)) {
+            fs.mkdirSync(gameDir, { recursive: true })
+            addLogEntry(`Carpeta del juego creada para ${profileName}`, 'info')
+        }
+        
+        shell.openPath(gameDir)
+        addLogEntry(`Carpeta del juego abierta para ${profileName}`, 'info')
+    } catch (error) {
+        console.error('Error abriendo carpeta del juego:', error)
+        addLogEntry(`Error abriendo carpeta del juego: ${error.message}`, 'error')
     }
 }
 
@@ -362,17 +389,33 @@ async function launch() {
     return
   }
 
+  const profile = profiles[active]
+  if (!profile) {
+    await showModal({
+      title: 'Error',
+      html: 'Perfil no encontrado.',
+      buttons: [{ label: 'OK', value: null }]
+    })
+    return
+  }
+
   const settings = getSettings()
   
   try {
     addLogEntry('Iniciando Minecraft...', 'info')
     showLogs() // Cambiar a la pestaña de logs
     
-    const result = await ipcRenderer.invoke('launch-minecraft', {
-      profile: active,
-      ram: settings.ram || '2',
-      resolution: settings.resolution || '1280x720'
-    })
+    // Pasar los parámetros individuales como espera el handler
+    const result = await ipcRenderer.invoke('launch-minecraft', 
+      profile.version,           // version
+      profile.username,          // username
+      {                         // options
+        ram: profile.ram || 2048, // Usar 2048 MB (2GB) por defecto
+        resolution: settings.resolution || '1280x720',
+        jvmArgs: profile.jvmFlags || [],
+        optimize: true
+      }
+    )
     
     if (result.success) {
       addLogEntry('Minecraft iniciado correctamente', 'success')
@@ -512,5 +555,27 @@ document.addEventListener('DOMContentLoaded', async () => {
       maximizeBtn.textContent = '□'
       maximizeBtn.title = 'Maximizar'
     }
+  })
+  
+  // Manejador para cuando se guarda un perfil
+  ipcRenderer.on('profile-saved', (event, profileName) => {
+    // Recargar perfiles
+    profiles = loadProfiles()
+    renderProfileList()
+    updateProfileStatus()
+    
+    // Mostrar notificación
+    addLogEntry(`Perfil "${profileName}" guardado correctamente`, 'success')
+  })
+  
+  // Manejador para cuando se elimina un perfil
+  ipcRenderer.on('profile-deleted', (event, profileName) => {
+    // Recargar perfiles
+    profiles = loadProfiles()
+    renderProfileList()
+    updateProfileStatus()
+    
+    // Mostrar notificación
+    addLogEntry(`Perfil "${profileName}" eliminado correctamente`, 'info')
   })
 })

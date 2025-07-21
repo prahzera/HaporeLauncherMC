@@ -145,6 +145,18 @@ function showLoadingState(button, isLoading) {
     }
 }
 
+// Función para actualizar la ruta de instalación
+function updateInstallPath() {
+    const profName = document.getElementById('prof-name').value.trim() || '[perfil]';
+    const version = document.getElementById('version').value || '[versión]';
+    const installPathElement = document.getElementById('install-path');
+    
+    const username = os.userInfo().username || '[usuario]';
+    const installPath = path.join(`C:\\Users\\${username}\\.haporelauncher\\instances\\${version}`);
+    
+    installPathElement.textContent = installPath;
+}
+
 // Inicialización
 document.addEventListener('DOMContentLoaded', async () => {
     const params = new URLSearchParams(location.search);
@@ -155,6 +167,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Configurar validaciones
     addFieldValidation();
+    
+    // Inicializar la ruta de instalación
+    updateInstallPath();
+    
+    // Actualizar la ruta cuando cambie el nombre del perfil
+    document.getElementById('prof-name').addEventListener('input', updateInstallPath);
 
     // Cargar versiones automáticamente usando IPC
     try {
@@ -182,6 +200,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             console.log(`Cargadas ${versions.length} versiones`);
             showNotification(`Cargadas ${versions.length} versiones de Minecraft`, 'success');
+            
+            // Actualizar la ruta de instalación cuando cambie la versión
+            versionSelect.addEventListener('change', updateInstallPath);
         }
     } catch (error) {
         console.error('Error cargando versiones:', error);
@@ -204,6 +225,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 option.textContent = `Minecraft ${version}`;
                 versionSelect.appendChild(option);
             });
+            
+            // Actualizar la ruta de instalación cuando cambie la versión
+            versionSelect.addEventListener('change', updateInstallPath);
         }
     }
 
@@ -252,7 +276,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const name = document.getElementById('prof-name').value.trim();
         const username = document.getElementById('username').value.trim();
         const version = document.getElementById('version').value;
-        const modloader = document.getElementById('modloader').value;
         const ram = document.getElementById('ram').value.trim();
         const jvmFlags = document.getElementById('jvm-flags').value.trim().split(/\s+/).filter(Boolean);
         
@@ -287,8 +310,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             profiles[name] = {
                 username,
                 version,
-                modloader,
-                ram: ram || null,
+                ram: ram || 2048, // Usar 2048 MB (2GB) por defecto
                 jvmFlags
             };
             
@@ -325,6 +347,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Efecto visual
         jvmFlagsField.focus();
         jvmFlagsField.select();
+    });
+
+    // Detectar cambios en el mod loader
+    document.getElementById('modloader').addEventListener('change', (e) => {
+        const modloader = e.target.value;
+        const modloaderWrapper = e.target.closest('.field-wrapper');
+        
+        // Remover clases previas
+        modloaderWrapper.classList.remove('fabric-selected', 'forge-selected', 'vanilla-selected');
+        
+        if (modloader === 'fabric') {
+            modloaderWrapper.classList.add('fabric-selected');
+            showNotification('Fabric será instalado automáticamente al guardar el perfil', 'info');
+        } else if (modloader === 'forge') {
+            modloaderWrapper.classList.add('forge-selected');
+            showNotification('Forge deberá ser instalado manualmente', 'info');
+        } else {
+            modloaderWrapper.classList.add('vanilla-selected');
+        }
     });
 
     // Efectos de hover para mejor feedback
